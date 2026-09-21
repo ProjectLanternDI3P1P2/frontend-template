@@ -8,13 +8,13 @@
  * data (ADR-FE-013 applies the same privacy rule to every outbound signal).
  */
 export default defineEventHandler(() => {
-  const config = useRuntimeConfig()
+  const config = useRuntimeConfig();
 
   return {
-    status: 'ok',
+    status: "ok",
     app: config.public.appName,
     version: config.public.appVersion,
     commit: config.public.commitSha,
     builtAt: config.public.builtAt,
-  }
-})
+  };
+});

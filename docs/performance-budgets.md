@@ -10,11 +10,11 @@ ADR-FE-014. Two things are measured, and they are not interchangeable.
 Targets are read at the **75th percentile, segmented mobile / desktop**, once
 there are enough samples:
 
-| Metric | Target | Applies to |
-| --- | --- | --- |
-| LCP | ≤ 2.5 s | Public-site routes; the game client's initial route. |
-| INP | ≤ 200 ms | Both. |
-| CLS | ≤ 0.1 | Both. |
+| Metric | Target   | Applies to                                           |
+| ------ | -------- | ---------------------------------------------------- |
+| LCP    | ≤ 2.5 s  | Public-site routes; the game client's initial route. |
+| INP    | ≤ 200 ms | Both.                                                |
+| CLS    | ≤ 0.1    | Both.                                                |
 
 ## Game-specific measure
 

@@ -16,31 +16,34 @@ anywhere without an import.
   `--color-rarity-legendary`). These are what components use.
 
 Rewriting the palette then becomes one file, not a repository-wide search. It
-also keeps the vocabulary honest: a component says *what it means*, not what
+also keeps the vocabulary honest: a component says _what it means_, not what
 colour it happens to be today.
 
 ## The groups
 
-| Group | Prefix | Notes |
-| --- | --- | --- |
-| Surfaces and borders | `--color-surface-*`, `--color-border-*` | Three surface depths. |
-| Text | `--color-text-*` | `primary`, `muted`, `inverse`. |
-| Intent | `--color-accent`, `--color-danger`, `--color-success`, `--color-arcane` | |
-| Focus | `--color-focus-ring` | A token of its own: ADR-FE-015 forbids removing the focus indicator. |
-| Rarity | `--color-rarity-*` | Shared game vocabulary. **Never the only cue** — always pair with text. |
-| Spacing | `--space-0` … `--space-8` | 4px base scale. |
-| Typography | `--font-family-*`, `--font-size-*`, `--font-weight-*`, `--line-height-*` | |
-| Radii, elevation | `--radius-*`, `--shadow-*` | |
-| Motion | `--duration-*`, `--easing-standard` | ADR-FE-006 keeps animation modest. |
-| Layout | `--layout-max-width`, `--layout-gutter`, `--z-*` | |
-| Breakpoints | `--breakpoint-*` (mirror) + `$sm/$md/$lg/$xl` | |
+| Group                | Prefix                                                                   | Notes                                                                   |
+| -------------------- | ------------------------------------------------------------------------ | ----------------------------------------------------------------------- |
+| Surfaces and borders | `--color-surface-*`, `--color-border-*`                                  | Three surface depths.                                                   |
+| Text                 | `--color-text-*`                                                         | `primary`, `muted`, `inverse`.                                          |
+| Intent               | `--color-accent`, `--color-danger`, `--color-success`, `--color-arcane`  |                                                                         |
+| Focus                | `--color-focus-ring`                                                     | A token of its own: ADR-FE-015 forbids removing the focus indicator.    |
+| Rarity               | `--color-rarity-*`                                                       | Shared game vocabulary. **Never the only cue** — always pair with text. |
+| Spacing              | `--space-0` … `--space-8`                                                | 4px base scale.                                                         |
+| Typography           | `--font-family-*`, `--font-size-*`, `--font-weight-*`, `--line-height-*` |                                                                         |
+| Radii, elevation     | `--radius-*`, `--shadow-*`                                               |                                                                         |
+| Motion               | `--duration-*`, `--easing-standard`                                      | ADR-FE-006 keeps animation modest.                                      |
+| Layout               | `--layout-max-width`, `--layout-gutter`, `--z-*`                         |                                                                         |
+| Breakpoints          | `--breakpoint-*` (mirror) + `$sm/$md/$lg/$xl`                            |                                                                         |
 
 ## BEM
 
 ```scss
-.inventory-item-card { }              // block
-.inventory-item-card__name { }        // element
-.inventory-item-card--legendary { }   // modifier
+.inventory-item-card {
+} // block
+.inventory-item-card__name {
+} // element
+.inventory-item-card--legendary {
+} // modifier
 ```
 
 Component-scoped variables are named after their block

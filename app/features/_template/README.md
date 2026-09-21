@@ -15,15 +15,15 @@ below, and delete this paragraph.
 
 ## What each file is for
 
-| File | Responsibility | ADR |
-| --- | --- | --- |
-| `types.ts` | Hand-written mirror of the versioned public Gateway contract. | ADR-FE-011 |
-| `api/exampleApi.ts` | The **only** file allowed to reach the Gateway. | ADR-FE-009, ADR-FE-011 |
-| `exampleRules.ts` | Pure presentation rules. No framework, no I/O. | ADR-FE-012 |
-| `composables/useExample.ts` | `useAsyncData`, resolved at build time or per request. | ADR-FE-003 |
-| `components/ExampleList.vue` | Presentation. No HTTP of its own. | ADR-FE-009, ADR-FE-010 |
-| `tests/exampleRules.spec.ts` | Vitest, next to the feature that owns it. | ADR-FE-012 |
-| `README.md` | This file, rewritten for your feature. | ADR-FE-009 |
+| File                         | Responsibility                                                | ADR                    |
+| ---------------------------- | ------------------------------------------------------------- | ---------------------- |
+| `types.ts`                   | Hand-written mirror of the versioned public Gateway contract. | ADR-FE-011             |
+| `api/exampleApi.ts`          | The **only** file allowed to reach the Gateway.               | ADR-FE-009, ADR-FE-011 |
+| `exampleRules.ts`            | Pure presentation rules. No framework, no I/O.                | ADR-FE-012             |
+| `composables/useExample.ts`  | `useAsyncData`, resolved at build time or per request.        | ADR-FE-003             |
+| `components/ExampleList.vue` | Presentation. No HTTP of its own.                             | ADR-FE-009, ADR-FE-010 |
+| `tests/exampleRules.spec.ts` | Vitest, next to the feature that owns it.                     | ADR-FE-012             |
+| `README.md`                  | This file, rewritten for your feature.                        | ADR-FE-009             |
 
 ## The three rules that get caught in review
 
@@ -44,16 +44,20 @@ below, and delete this paragraph.
 > **Owner squad:** _one squad, never two (ADR-FE-009)_
 >
 > ### Purpose
+>
 > _What this delivers for a visitor, in two sentences._
 >
 > ### Routes
+>
 > | Route | Rendering | Why not static / why not CSR |
-> | --- | --- | --- |
+> | ----- | --------- | ---------------------------- |
 >
 > ### APIs consumed
+>
 > | Call | Gateway route | Resolved at |
-> | --- | --- | --- |
+> | ---- | ------------- | ----------- |
 >
 > ### Test coverage
+>
 > | Level | File | What it proves |
-> | --- | --- | --- |
+> | ----- | ---- | -------------- |

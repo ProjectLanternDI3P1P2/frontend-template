@@ -9,7 +9,7 @@
  * Every route added here must also declare its rendering mode in
  * `nuxt.config.ts` → `routeRules` and justify it in `docs/rendering-modes.md`.
  */
-useHead({ title: 'Public site' })
+useHead({ title: "Public site" });
 </script>
 
 <template>

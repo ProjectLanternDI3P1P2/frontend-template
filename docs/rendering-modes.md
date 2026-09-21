@@ -23,19 +23,19 @@ one is not.
 
 ## The two allowed SSR shapes
 
-| Shape | Declaration | When |
-| --- | --- | --- |
+| Shape                   | Declaration                                       | When                                                                                                                                               |
+| ----------------------- | ------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Fresh-enough, indexable | `{ ssr: true, prerender: false, swr: <seconds> }` | The data changes while deployed, but a short shared cache window is acceptable. The window is what stops a traffic spike becoming a Gateway spike. |
-| Never cached | `{ ssr: true, prerender: false, cache: false }` | A cached answer would be **wrong**, not merely stale — live availability, incident status. |
+| Never cached            | `{ ssr: true, prerender: false, cache: false }`   | A cached answer would be **wrong**, not merely stale — live availability, incident status.                                                         |
 
 An SSR route without a stated caching strategy is not acceptable: ADR-FE-003
 makes the caching strategy part of the decision, not an afterthought.
 
 ## Register of non-default routes
 
-| Route | Mode | Why not static | Why not CSR | Caching | How it is validated |
-| --- | --- | --- | --- | --- | --- |
-| _(none yet)_ | | | | | |
+| Route        | Mode | Why not static | Why not CSR | Caching | How it is validated |
+| ------------ | ---- | -------------- | ----------- | ------- | ------------------- |
+| _(none yet)_ |      |                |             |         |                     |
 
 ## Adding a route
 

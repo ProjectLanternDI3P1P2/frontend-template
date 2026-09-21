@@ -7,21 +7,21 @@
  * JavaScript runs (ADR-FE-003).
  */
 
-describe('public shell', () => {
-  it('boots and renders the shell landmarks', () => {
-    cy.visit('/')
-    cy.get('main#main').should('exist')
-    cy.contains('a', 'Skip to main content').should('exist')
-  })
+describe("public shell", () => {
+  it("boots and renders the shell landmarks", () => {
+    cy.visit("/");
+    cy.get("main#main").should("exist");
+    cy.contains("a", "Skip to main content").should("exist");
+  });
 
-  it('serves the landing route as HTML before JavaScript runs', () => {
+  it("serves the landing route as HTML before JavaScript runs", () => {
     // ADR-FE-003: if this fails, a route rule has drifted towards CSR.
-    cy.request('/').its('body').should('contain', 'Project Lantern')
-  })
+    cy.request("/").its("body").should("contain", "Project Lantern");
+  });
 
-  it('has no detectable accessibility violation', () => {
-    cy.visit('/')
-    cy.injectAxe()
-    cy.checkA11y()
-  })
-})
+  it("has no detectable accessibility violation", () => {
+    cy.visit("/");
+    cy.injectAxe();
+    cy.checkA11y();
+  });
+});

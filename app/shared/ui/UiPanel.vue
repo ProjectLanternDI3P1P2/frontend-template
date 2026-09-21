@@ -1,10 +1,10 @@
 <script setup lang="ts">
 /** ADR-FE-010 — Surface wrapper. Presentational only. */
 defineProps<{
-  title: string
+  title: string;
   /** Heading level, so each page keeps a correct outline (ADR-FE-015). */
-  headingLevel?: 2 | 3 | 4
-}>()
+  headingLevel?: 2 | 3 | 4;
+}>();
 </script>
 
 <template>

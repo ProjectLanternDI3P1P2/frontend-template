@@ -40,15 +40,15 @@ cp .env.example .env
 npm run dev
 ```
 
-| Command | What it does |
-| --- | --- |
-| `npm run dev` | Development server on http://localhost:3000 |
+| Command                             | What it does                                   |
+| ----------------------------------- | ---------------------------------------------- |
+| `npm run dev`                       | Development server on http://localhost:3000    |
 | `npm run build` / `npm run preview` | Production build (server + prerendered routes) |
-| `npm run generate` | Static-only output, for the prerendered subset |
-| `npm run lint` | ESLint, including the accessibility rules |
-| `npm run typecheck` | `vue-tsc` over the whole application |
-| `npm run test:unit` | Vitest |
-| `npm run test:e2e` | Cypress against a running server |
+| `npm run generate`                  | Static-only output, for the prerendered subset |
+| `npm run lint`                      | ESLint, including the accessibility rules      |
+| `npm run typecheck`                 | `vue-tsc` over the whole application           |
+| `npm run test:unit`                 | Vitest                                         |
+| `npm run test:e2e`                  | Cypress against a running server               |
 
 `GET /healthz` returns app name, version, commit and build time.
 

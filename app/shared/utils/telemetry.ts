@@ -8,62 +8,76 @@
  * or unnecessary personal data. Only the fields below are allowed.
  */
 
-export type TelemetryEventType = 'web-vital' | 'browser-error' | 'custom-timing'
+export type TelemetryEventType =
+  "web-vital" | "browser-error" | "custom-timing";
 
 export interface TelemetryContext {
   /** Application name, e.g. `game-client`. */
-  app: string
+  app: string;
   /** Deployed version, so a regression can be attributed to a release. */
-  version: string
+  version: string;
 }
 
 export interface TelemetryEvent {
-  type: TelemetryEventType
+  type: TelemetryEventType;
   /** Metric or error name: `LCP`, `INP`, `CLS`, `unhandledrejection`... */
-  name: string
+  name: string;
   /** Numeric value for metrics; omitted for errors. */
-  value?: number
+  value?: number;
   /** `good` / `needs-improvement` / `poor` for Web Vitals. */
-  rating?: string
+  rating?: string;
   /** Route pattern, never a URL containing personal data. */
-  route: string
+  route: string;
   /** Business operation when known, e.g. `inventory.equip`. */
-  operation?: string
+  operation?: string;
   /** Correlation identifier propagated from the Gateway when available. */
-  correlationId?: string
-  message?: string
-  stack?: string
-  app: string
-  version: string
-  timestamp: string
+  correlationId?: string;
+  message?: string;
+  stack?: string;
+  app: string;
+  version: string;
+  timestamp: string;
 }
 
 /** Fields that are allowed to leave the browser. Anything else is dropped. */
 const ALLOWED_FIELDS = new Set<keyof TelemetryEvent>([
-  'type', 'name', 'value', 'rating', 'route', 'operation',
-  'correlationId', 'message', 'stack', 'app', 'version', 'timestamp',
-])
+  "type",
+  "name",
+  "value",
+  "rating",
+  "route",
+  "operation",
+  "correlationId",
+  "message",
+  "stack",
+  "app",
+  "version",
+  "timestamp",
+]);
 
-const SECRET_PATTERN = /(bearer\s+[\w-.]+|eyJ[\w-]+\.[\w-]+\.[\w-]+|(api[_-]?key|token|password|secret)\s*[=:]\s*\S+)/gi
+const SECRET_PATTERN =
+  /(bearer\s+[\w-.]+|eyJ[\w-]+\.[\w-]+\.[\w-]+|(api[_-]?key|token|password|secret)\s*[=:]\s*\S+)/gi;
 
 /** Removes anything that looks like a credential from free-text fields. */
 export function redact(text: string | undefined): string | undefined {
-  if (!text) return text
-  return text.replace(SECRET_PATTERN, '[redacted]').slice(0, 2000)
+  if (!text) return text;
+  return text.replace(SECRET_PATTERN, "[redacted]").slice(0, 2000);
 }
 
 export function sanitiseEvent(event: TelemetryEvent): TelemetryEvent {
-  const safe = {} as TelemetryEvent
+  const safe = {} as TelemetryEvent;
   for (const key of Object.keys(event) as (keyof TelemetryEvent)[]) {
-    if (ALLOWED_FIELDS.has(key)) Object.assign(safe, { [key]: event[key] })
+    if (ALLOWED_FIELDS.has(key)) Object.assign(safe, { [key]: event[key] });
   }
-  safe.message = redact(safe.message)
-  safe.stack = redact(safe.stack)
-  return safe
+  safe.message = redact(safe.message);
+  safe.stack = redact(safe.stack);
+  return safe;
 }
 
 export interface TelemetryReporter {
-  report: (event: Omit<TelemetryEvent, 'app' | 'version' | 'timestamp'>) => void
+  report: (
+    event: Omit<TelemetryEvent, "app" | "version" | "timestamp">,
+  ) => void;
 }
 
 /**
@@ -73,45 +87,63 @@ export interface TelemetryReporter {
 export function createTelemetryReporter(
   context: TelemetryContext,
   endpoint: string,
-  options: { flushIntervalMs?: number, maxBatchSize?: number, sampleRate?: number } = {},
+  options: {
+    flushIntervalMs?: number;
+    maxBatchSize?: number;
+    sampleRate?: number;
+  } = {},
 ): TelemetryReporter {
-  const flushIntervalMs = options.flushIntervalMs ?? 5000
-  const maxBatchSize = options.maxBatchSize ?? 20
-  const sampleRate = options.sampleRate ?? 1
-  const queue: TelemetryEvent[] = []
+  const flushIntervalMs = options.flushIntervalMs ?? 5000;
+  const maxBatchSize = options.maxBatchSize ?? 20;
+  const sampleRate = options.sampleRate ?? 1;
+  const queue: TelemetryEvent[] = [];
 
   function flush(): void {
-    if (queue.length === 0 || !endpoint) return
-    const batch = queue.splice(0, queue.length)
-    const payload = JSON.stringify({ events: batch })
+    if (queue.length === 0 || !endpoint) return;
+    const batch = queue.splice(0, queue.length);
+    const payload = JSON.stringify({ events: batch });
 
-    if (typeof navigator !== 'undefined' && typeof navigator.sendBeacon === 'function') {
-      navigator.sendBeacon(endpoint, new Blob([payload], { type: 'application/json' }))
-      return
+    if (
+      typeof navigator !== "undefined" &&
+      typeof navigator.sendBeacon === "function"
+    ) {
+      navigator.sendBeacon(
+        endpoint,
+        new Blob([payload], { type: "application/json" }),
+      );
+      return;
     }
-    void fetch(endpoint, { method: 'POST', body: payload, headers: { 'Content-Type': 'application/json' }, keepalive: true })
-      .catch(() => { /* telemetry must never break the application */ })
+    void fetch(endpoint, {
+      method: "POST",
+      body: payload,
+      headers: { "Content-Type": "application/json" },
+      keepalive: true,
+    }).catch(() => {
+      /* telemetry must never break the application */
+    });
   }
 
-  if (typeof window !== 'undefined') {
-    setInterval(flush, flushIntervalMs)
+  if (typeof window !== "undefined") {
+    setInterval(flush, flushIntervalMs);
     // A player closing the tab must not lose the session's measurements.
-    document.addEventListener('visibilitychange', () => {
-      if (document.visibilityState === 'hidden') flush()
-    })
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "hidden") flush();
+    });
   }
 
   return {
     report(event) {
-      if (!endpoint) return
-      if (event.type === 'web-vital' && Math.random() > sampleRate) return
-      queue.push(sanitiseEvent({
-        ...event,
-        app: context.app,
-        version: context.version,
-        timestamp: new Date().toISOString(),
-      } as TelemetryEvent))
-      if (queue.length >= maxBatchSize) flush()
+      if (!endpoint) return;
+      if (event.type === "web-vital" && Math.random() > sampleRate) return;
+      queue.push(
+        sanitiseEvent({
+          ...event,
+          app: context.app,
+          version: context.version,
+          timestamp: new Date().toISOString(),
+        } as TelemetryEvent),
+      );
+      if (queue.length >= maxBatchSize) flush();
     },
-  }
+  };
 }

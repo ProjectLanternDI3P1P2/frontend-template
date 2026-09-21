@@ -4,7 +4,7 @@
  * page inherits them. The public site targets RGAA compliance with no expected
  * exception: nothing here is a gameplay constraint.
  */
-const config = useRuntimeConfig()
+const config = useRuntimeConfig();
 </script>
 
 <template>

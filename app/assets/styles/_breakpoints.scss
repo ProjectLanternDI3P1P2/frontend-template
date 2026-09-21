@@ -5,7 +5,7 @@
 // SCSS variables, injected into every component by nuxt.config.ts, and mirrored
 // in --breakpoint-* tokens for documentation.
 
-@use 'sass:map';
+@use "sass:map";
 
 $sm: 480px;
 $md: 768px;
@@ -13,10 +13,10 @@ $lg: 1024px;
 $xl: 1440px;
 
 $breakpoints: (
-  'sm': $sm,
-  'md': $md,
-  'lg': $lg,
-  'xl': $xl,
+  "sm": $sm,
+  "md": $md,
+  "lg": $lg,
+  "xl": $xl,
 );
 
 /// Apply styles from the named breakpoint upwards.

@@ -11,15 +11,15 @@ is for them.
 
 ## What the code already enforces
 
-| Mechanism | Where |
-| --- | --- |
-| Skip link, landmarks, one `h1` per page | `app/layouts/default.vue` |
-| Visible focus ring, never removed | `--color-focus-ring`, `:focus-visible` in `_base.scss` |
-| Reduced-motion honoured | `_reset.scss`, `bp.motion-safe` |
-| Status conveyed by word and shape, not colour alone | `app/pages/status.vue` |
-| Real table semantics with a caption and row headers | `app/pages/status.vue` |
-| Machine-readable dates (`<time datetime>`) | `app/pages/season.vue` |
-| Declared page language | `app.head.htmlAttrs.lang` in `nuxt.config.ts` |
+| Mechanism                                           | Where                                                  |
+| --------------------------------------------------- | ------------------------------------------------------ |
+| Skip link, landmarks, one `h1` per page             | `app/layouts/default.vue`                              |
+| Visible focus ring, never removed                   | `--color-focus-ring`, `:focus-visible` in `_base.scss` |
+| Reduced-motion honoured                             | `_reset.scss`, `bp.motion-safe`                        |
+| Status conveyed by word and shape, not colour alone | `app/pages/status.vue`                                 |
+| Real table semantics with a caption and row headers | `app/pages/status.vue`                                 |
+| Machine-readable dates (`<time datetime>`)          | `app/pages/season.vue`                                 |
+| Declared page language                              | `app.head.htmlAttrs.lang` in `nuxt.config.ts`          |
 
 ## How it is checked
 

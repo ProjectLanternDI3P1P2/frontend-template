@@ -4,20 +4,23 @@
  * One responsibility, typed props, explicit events, no HTTP call, no business
  * rule. Styled with BEM class names built from design tokens.
  */
-withDefaults(defineProps<{
-  variant?: 'primary' | 'ghost' | 'danger'
-  type?: 'button' | 'submit'
-  disabled?: boolean
-  /** Renders a busy state and blocks interaction without removing the button. */
-  busy?: boolean
-}>(), {
-  variant: 'primary',
-  type: 'button',
-  disabled: false,
-  busy: false,
-})
+withDefaults(
+  defineProps<{
+    variant?: "primary" | "ghost" | "danger";
+    type?: "button" | "submit";
+    disabled?: boolean;
+    /** Renders a busy state and blocks interaction without removing the button. */
+    busy?: boolean;
+  }>(),
+  {
+    variant: "primary",
+    type: "button",
+    disabled: false,
+    busy: false,
+  },
+);
 
-defineEmits<{ click: [event: MouseEvent] }>()
+defineEmits<{ click: [event: MouseEvent] }>();
 </script>
 
 <template>
@@ -56,7 +59,9 @@ defineEmits<{ click: [event: MouseEvent] }>()
     background-color: var(--color-accent);
     color: var(--color-text-inverse);
 
-    &:hover:not(:disabled) { background-color: var(--color-accent-strong); }
+    &:hover:not(:disabled) {
+      background-color: var(--color-accent-strong);
+    }
   }
 
   &--ghost {
@@ -64,18 +69,26 @@ defineEmits<{ click: [event: MouseEvent] }>()
     border-color: var(--color-border-strong);
     color: var(--color-text-primary);
 
-    &:hover:not(:disabled) { background-color: var(--color-surface-overlay); }
+    &:hover:not(:disabled) {
+      background-color: var(--color-surface-overlay);
+    }
   }
 
   &--danger {
     background-color: var(--color-danger);
     color: var(--color-text-primary);
 
-    &:hover:not(:disabled) { background-color: var(--color-danger-strong); }
+    &:hover:not(:disabled) {
+      background-color: var(--color-danger-strong);
+    }
   }
 
-  &--busy { cursor: progress; }
+  &--busy {
+    cursor: progress;
+  }
 
-  &__label { line-height: 1; }
+  &__label {
+    line-height: 1;
+  }
 }
 </style>

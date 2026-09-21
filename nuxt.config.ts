@@ -1,4 +1,4 @@
-import { fileURLToPath } from 'node:url'
+import { fileURLToPath } from "node:url";
 
 // ADR-FE-010: SCSS breakpoint helpers are injected so every component can use
 // `bp.from(...)` without a fragile relative import path.
@@ -7,10 +7,12 @@ import { fileURLToPath } from 'node:url'
 // injected SCSS source. A Windows absolute path inside an `@use "..."` string
 // is a parsing hazard on both sides, and building it needed a backslash regex
 // that broke the parser reading this very file.
-const stylesDir = fileURLToPath(new URL('./app/assets/styles', import.meta.url))
+const stylesDir = fileURLToPath(
+  new URL("./app/assets/styles", import.meta.url),
+);
 
 export default defineNuxtConfig({
-  compatibilityDate: '2025-07-15',
+  compatibilityDate: "2025-07-15",
   devtools: { enabled: true },
 
   // ADR-FE-003: hybrid rendering. The server runtime stays enabled so that the
@@ -24,7 +26,7 @@ export default defineNuxtConfig({
     // Default: durable reference content is statically generated. It is cheap
     // to serve, indexable, readable before JavaScript runs, and it survives the
     // API Gateway being unavailable.
-    '/': { prerender: true },
+    "/": { prerender: true },
 
     // A route that genuinely needs a request-time render is declared here, one
     // entry per route, and justified in docs/rendering-modes.md. Two shapes are
@@ -47,13 +49,13 @@ export default defineNuxtConfig({
   },
 
   // ADR-FE-015: automated accessibility linting.
-  modules: ['@nuxt/eslint'],
+  modules: ["@nuxt/eslint"],
 
   // ADR-FE-009: only `shared/ui` is globally auto-imported.
-  components: [{ path: '~/shared/ui', pathPrefix: false }],
-  imports: { dirs: ['shared/composables', 'shared/utils'] },
+  components: [{ path: "~/shared/ui", pathPrefix: false }],
+  imports: { dirs: ["shared/composables", "shared/utils"] },
 
-  css: ['~/assets/styles/main.scss'],
+  css: ["~/assets/styles/main.scss"],
 
   vite: {
     css: {
@@ -68,23 +70,26 @@ export default defineNuxtConfig({
 
   app: {
     head: {
-      htmlAttrs: { lang: 'en' },
-      meta: [{ name: 'viewport', content: 'width=device-width, initial-scale=1' }],
+      htmlAttrs: { lang: "en" },
+      meta: [
+        { name: "viewport", content: "width=device-width, initial-scale=1" },
+      ],
     },
   },
 
   // ADR-FE-011: the small number of public API calls goes through the Gateway.
   runtimeConfig: {
     public: {
-      apiGatewayUrl: process.env.NUXT_PUBLIC_API_GATEWAY_URL || 'http://localhost:8080',
-      apiVersion: process.env.NUXT_PUBLIC_API_VERSION || 'v1',
-      telemetryEndpoint: process.env.NUXT_PUBLIC_TELEMETRY_ENDPOINT || '',
-      appName: 'public-site',
-      appVersion: process.env.NUXT_PUBLIC_APP_VERSION || 'dev',
-      commitSha: process.env.NUXT_PUBLIC_COMMIT_SHA || 'local',
-      builtAt: process.env.NUXT_PUBLIC_BUILT_AT || 'local',
+      apiGatewayUrl:
+        process.env.NUXT_PUBLIC_API_GATEWAY_URL || "http://localhost:8080",
+      apiVersion: process.env.NUXT_PUBLIC_API_VERSION || "v1",
+      telemetryEndpoint: process.env.NUXT_PUBLIC_TELEMETRY_ENDPOINT || "",
+      appName: "public-site",
+      appVersion: process.env.NUXT_PUBLIC_APP_VERSION || "dev",
+      commitSha: process.env.NUXT_PUBLIC_COMMIT_SHA || "local",
+      builtAt: process.env.NUXT_PUBLIC_BUILT_AT || "local",
     },
   },
 
   typescript: { typeCheck: false, strict: true },
-})
+});

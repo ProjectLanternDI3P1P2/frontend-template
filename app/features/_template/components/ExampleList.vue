@@ -6,12 +6,12 @@
  * ADR-FE-010 — BEM class names, every value from a design token.
  * ADR-FE-015 — A load failure is announced, not merely coloured.
  */
-import type { ExampleResource } from '../types'
+import type { ExampleResource } from "../types";
 
 defineProps<{
-  items: ExampleResource[]
-  failed: boolean
-}>()
+  items: ExampleResource[];
+  failed: boolean;
+}>();
 </script>
 
 <template>

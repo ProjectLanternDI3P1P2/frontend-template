@@ -9,8 +9,8 @@
  * ADR-FE-008's request cache belongs to the game client, where a long-lived
  * client session shares mutable player data across screens. Do not port it here.
  */
-import { fetchExample, EXAMPLE_CACHE_KEY } from '../api/exampleApi'
+import { fetchExample, EXAMPLE_CACHE_KEY } from "../api/exampleApi";
 
 export function useExample() {
-  return useAsyncData(EXAMPLE_CACHE_KEY, () => fetchExample())
+  return useAsyncData(EXAMPLE_CACHE_KEY, () => fetchExample());
 }

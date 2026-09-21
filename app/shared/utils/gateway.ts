@@ -9,28 +9,28 @@
  * without a browser journey (ADR-FE-012).
  */
 
-export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
+export type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
 /** Error envelope documented by the Gateway. */
 export interface GatewayErrorBody {
-  code: string
-  message: string
-  details?: unknown
+  code: string;
+  message: string;
+  details?: unknown;
 }
 
 export class GatewayError extends Error {
-  readonly status: number
-  readonly code: string
-  readonly details?: unknown
-  readonly correlationId?: string
+  readonly status: number;
+  readonly code: string;
+  readonly details?: unknown;
+  readonly correlationId?: string;
 
   constructor(status: number, body: GatewayErrorBody, correlationId?: string) {
-    super(body.message)
-    this.name = 'GatewayError'
-    this.status = status
-    this.code = body.code
-    this.details = body.details
-    this.correlationId = correlationId
+    super(body.message);
+    this.name = "GatewayError";
+    this.status = status;
+    this.code = body.code;
+    this.details = body.details;
+    this.correlationId = correlationId;
   }
 
   /**
@@ -39,40 +39,48 @@ export class GatewayError extends Error {
    * may have been applied server-side is never silently assumed to have failed.
    */
   get isOutcomeUncertain(): boolean {
-    return this.status === 0 || this.status === 408 || this.status >= 500
+    return this.status === 0 || this.status === 408 || this.status >= 500;
   }
 }
 
 export interface GatewayRequest {
-  path: string
-  method?: HttpMethod
-  query?: Record<string, string | number | boolean | undefined>
-  body?: unknown
-  signal?: AbortSignal
+  path: string;
+  method?: HttpMethod;
+  query?: Record<string, string | number | boolean | undefined>;
+  body?: unknown;
+  signal?: AbortSignal;
   /** Overrides the client-level token for a single call. */
-  token?: string | null
+  token?: string | null;
 }
 
 export interface GatewayClientOptions {
-  baseUrl: string
-  apiVersion: string
+  baseUrl: string;
+  apiVersion: string;
   /** Returns the current access token, or null when the user is anonymous. */
-  getToken?: () => string | null
+  getToken?: () => string | null;
   /** Injected for tests; defaults to the global fetch. */
-  fetchImpl?: typeof fetch
+  fetchImpl?: typeof fetch;
   /** Injected for tests; defaults to crypto.randomUUID. */
-  correlationIdFactory?: () => string
+  correlationIdFactory?: () => string;
 }
 
 export interface GatewayClient {
-  request: <TResponse>(req: GatewayRequest) => Promise<TResponse>
-  get: <TResponse>(path: string, req?: Omit<GatewayRequest, 'path' | 'method' | 'body'>) => Promise<TResponse>
-  post: <TResponse>(path: string, body?: unknown, req?: Omit<GatewayRequest, 'path' | 'method' | 'body'>) => Promise<TResponse>
+  request: <TResponse>(req: GatewayRequest) => Promise<TResponse>;
+  get: <TResponse>(
+    path: string,
+    req?: Omit<GatewayRequest, "path" | "method" | "body">,
+  ) => Promise<TResponse>;
+  post: <TResponse>(
+    path: string,
+    body?: unknown,
+    req?: Omit<GatewayRequest, "path" | "method" | "body">,
+  ) => Promise<TResponse>;
 }
 
 function defaultCorrelationId(): string {
-  if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) return crypto.randomUUID()
-  return `cid-${Date.now()}-${Math.random().toString(16).slice(2)}`
+  if (typeof crypto !== "undefined" && "randomUUID" in crypto)
+    return crypto.randomUUID();
+  return `cid-${Date.now()}-${Math.random().toString(16).slice(2)}`;
 }
 
 /** Builds `/api/v1/<path>?<query>` without ever leaking undefined parameters. */
@@ -80,78 +88,99 @@ export function buildGatewayUrl(
   baseUrl: string,
   apiVersion: string,
   path: string,
-  query?: GatewayRequest['query'],
+  query?: GatewayRequest["query"],
 ): string {
-  const normalisedBase = baseUrl.replace(/\/+$/, '')
-  const normalisedPath = path.replace(/^\/+/, '')
-  const url = new URL(`${normalisedBase}/api/${apiVersion}/${normalisedPath}`)
+  const normalisedBase = baseUrl.replace(/\/+$/, "");
+  const normalisedPath = path.replace(/^\/+/, "");
+  const url = new URL(`${normalisedBase}/api/${apiVersion}/${normalisedPath}`);
 
   for (const [key, value] of Object.entries(query ?? {})) {
-    if (value !== undefined) url.searchParams.set(key, String(value))
+    if (value !== undefined) url.searchParams.set(key, String(value));
   }
-  return url.toString()
+  return url.toString();
 }
 
-export function createGatewayClient(options: GatewayClientOptions): GatewayClient {
-  const doFetch = options.fetchImpl ?? globalThis.fetch.bind(globalThis)
-  const newCorrelationId = options.correlationIdFactory ?? defaultCorrelationId
+export function createGatewayClient(
+  options: GatewayClientOptions,
+): GatewayClient {
+  const doFetch = options.fetchImpl ?? globalThis.fetch.bind(globalThis);
+  const newCorrelationId = options.correlationIdFactory ?? defaultCorrelationId;
 
   async function request<TResponse>(req: GatewayRequest): Promise<TResponse> {
-    const method = req.method ?? 'GET'
-    const correlationId = newCorrelationId()
-    const token = req.token !== undefined ? req.token : (options.getToken?.() ?? null)
+    const method = req.method ?? "GET";
+    const correlationId = newCorrelationId();
+    const token =
+      req.token !== undefined ? req.token : (options.getToken?.() ?? null);
 
     const headers: Record<string, string> = {
-      Accept: 'application/json',
-      'X-Correlation-Id': correlationId,
-    }
-    if (req.body !== undefined) headers['Content-Type'] = 'application/json'
-    if (token) headers.Authorization = `Bearer ${token}`
+      Accept: "application/json",
+      "X-Correlation-Id": correlationId,
+    };
+    if (req.body !== undefined) headers["Content-Type"] = "application/json";
+    if (token) headers.Authorization = `Bearer ${token}`;
 
-    let response: Response
+    let response: Response;
     try {
-      response = await doFetch(buildGatewayUrl(options.baseUrl, options.apiVersion, req.path, req.query), {
-        method,
-        headers,
-        signal: req.signal,
-        body: req.body === undefined ? undefined : JSON.stringify(req.body),
-      })
-    }
-    catch (cause) {
+      response = await doFetch(
+        buildGatewayUrl(
+          options.baseUrl,
+          options.apiVersion,
+          req.path,
+          req.query,
+        ),
+        {
+          method,
+          headers,
+          signal: req.signal,
+          body: req.body === undefined ? undefined : JSON.stringify(req.body),
+        },
+      );
+    } catch (cause) {
       // Network-level failure: the outcome of a write is genuinely unknown.
       throw new GatewayError(
         0,
-        { code: 'NETWORK_UNAVAILABLE', message: 'The API Gateway is unreachable.', details: String(cause) },
+        {
+          code: "NETWORK_UNAVAILABLE",
+          message: "The API Gateway is unreachable.",
+          details: String(cause),
+        },
         correlationId,
-      )
+      );
     }
 
-    if (response.status === 204) return undefined as TResponse
+    if (response.status === 204) return undefined as TResponse;
 
-    const payload = await response.json().catch(() => null)
+    const payload = await response.json().catch(() => null);
 
     if (!response.ok) {
       const body: GatewayErrorBody = isErrorBody(payload)
         ? payload
-        : { code: 'UNEXPECTED_ERROR', message: `Request ${method} ${req.path} failed (${response.status}).` }
-      throw new GatewayError(response.status, body, response.headers.get('X-Correlation-Id') ?? correlationId)
+        : {
+            code: "UNEXPECTED_ERROR",
+            message: `Request ${method} ${req.path} failed (${response.status}).`,
+          };
+      throw new GatewayError(
+        response.status,
+        body,
+        response.headers.get("X-Correlation-Id") ?? correlationId,
+      );
     }
 
-    return payload as TResponse
+    return payload as TResponse;
   }
 
   return {
     request,
-    get: (path, req) => request({ ...req, path, method: 'GET' }),
-    post: (path, body, req) => request({ ...req, path, method: 'POST', body }),
-  }
+    get: (path, req) => request({ ...req, path, method: "GET" }),
+    post: (path, body, req) => request({ ...req, path, method: "POST", body }),
+  };
 }
 
 function isErrorBody(value: unknown): value is GatewayErrorBody {
   return (
-    typeof value === 'object'
-    && value !== null
-    && typeof (value as GatewayErrorBody).code === 'string'
-    && typeof (value as GatewayErrorBody).message === 'string'
-  )
+    typeof value === "object" &&
+    value !== null &&
+    typeof (value as GatewayErrorBody).code === "string" &&
+    typeof (value as GatewayErrorBody).message === "string"
+  );
 }

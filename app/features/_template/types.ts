@@ -10,11 +10,11 @@
  */
 
 export interface ExampleResource {
-  id: string
-  label: string
+  id: string;
+  label: string;
 }
 
 /** Response of a write, when the Gateway returns the new authoritative state. */
 export interface ExampleOutcome {
-  resource: ExampleResource
+  resource: ExampleResource;
 }
