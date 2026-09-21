@@ -1,0 +1,5 @@
+// ADR-FE-010 — Single stylesheet entry point.
+// Order matters: tokens first, then the reset, then base element styles.
+@use 'tokens';
+@use 'reset';
+@use 'base';

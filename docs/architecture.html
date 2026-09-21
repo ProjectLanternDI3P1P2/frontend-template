@@ -1,0 +1,1049 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Architecture Front Lantern</title>
+<meta name="description" content="Architecture des deux applications front de Project Lantern et leur mise en œuvre des ADR-FE-001 à 015.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    --ground: #f4f5f8;
+    --surface: #ffffff;
+    --surface-sunk: #eceef3;
+    --ink: #1b2130;
+    --ink-soft: #3b4356;
+    --muted: #5d6578;
+    --line: #dadee7;
+    --line-strong: #c3c9d6;
+    --lantern: #b8741a;
+    --lantern-soft: #fbf0df;
+    --game: #4f4bc9;
+    --game-soft: #ebeafb;
+    --public: #19806f;
+    --public-soft: #e0f2ee;
+    --ok: #1f7a4d;
+    --ok-soft: #e2f3ea;
+    --warn: #a35a00;
+    --warn-soft: #fcefdc;
+    --block: #b3322f;
+    --block-soft: #fbe6e5;
+    --code-bg: #eef0f5;
+
+    --font-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+    --font-body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+    --font-mono: "IBM Plex Mono", "Cascadia Mono", Consolas, monospace;
+
+    --step--1: 0.8125rem;
+    --step-0: 1rem;
+    --step-1: 1.1875rem;
+    --step-2: 1.5rem;
+    --step-3: 2rem;
+    --step-4: 2.75rem;
+
+    --radius: 8px;
+    --gutter: clamp(16px, 4vw, 40px);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #10131c;
+      --surface: #171b27;
+      --surface-sunk: #0c0f16;
+      --ink: #e8eaf1;
+      --ink-soft: #c5cad6;
+      --muted: #969db0;
+      --line: #272d3d;
+      --line-strong: #363e52;
+      --lantern: #f0b354;
+      --lantern-soft: #2d2415;
+      --game: #9d9af5;
+      --game-soft: #22223f;
+      --public: #5fcbb8;
+      --public-soft: #14302b;
+      --ok: #5fcb92;
+      --ok-soft: #14301f;
+      --warn: #f2b25c;
+      --warn-soft: #33260f;
+      --block: #f08a86;
+      --block-soft: #361817;
+      --code-bg: #0e1119;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --ground: #10131c;
+    --surface: #171b27;
+    --surface-sunk: #0c0f16;
+    --ink: #e8eaf1;
+    --ink-soft: #c5cad6;
+    --muted: #969db0;
+    --line: #272d3d;
+    --line-strong: #363e52;
+    --lantern: #f0b354;
+    --lantern-soft: #2d2415;
+    --game: #9d9af5;
+    --game-soft: #22223f;
+    --public: #5fcbb8;
+    --public-soft: #14302b;
+    --ok: #5fcb92;
+    --ok-soft: #14301f;
+    --warn: #f2b25c;
+    --warn-soft: #33260f;
+    --block: #f08a86;
+    --block-soft: #361817;
+    --code-bg: #0e1119;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; scroll-padding-top: calc(env(safe-area-inset-top, 0px) + 24px); }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+  body {
+    background: var(--ground);
+    color: var(--ink);
+    font-family: var(--font-body);
+    font-size: var(--step-0);
+    line-height: 1.65;
+    padding-inline: var(--gutter);
+    padding-block: 0 72px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  a { color: var(--lantern); text-underline-offset: 0.18em; }
+  a:focus-visible, button:focus-visible, summary:focus-visible {
+    outline: 2px solid var(--lantern);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+
+  code, .path {
+    font-family: var(--font-mono);
+    font-size: 0.875em;
+    background: var(--code-bg);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 0.05em 0.35em;
+    color: var(--ink);
+    overflow-wrap: anywhere;
+  }
+
+  /* ---------- Shell ---------- */
+  .shell {
+    max-width: 1180px;
+    margin-inline: auto;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 48px;
+  }
+  @media (min-width: 1000px) {
+    .shell { grid-template-columns: 220px minmax(0, 1fr); gap: 56px; }
+  }
+
+  .toc { display: none; }
+  @media (min-width: 1000px) {
+    .toc {
+      display: block;
+      position: sticky;
+      top: calc(env(safe-area-inset-top, 0px) + 32px);
+      align-self: start;
+      padding-block-start: 40px;
+    }
+  }
+  .toc__label {
+    font-size: var(--step--1);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    margin: 0 0 12px;
+  }
+  .toc ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+  .toc a {
+    display: block;
+    padding: 5px 10px;
+    border-radius: 6px;
+    color: var(--ink-soft);
+    text-decoration: none;
+    font-size: 0.9rem;
+    line-height: 1.35;
+  }
+  .toc a:hover { background: var(--surface-sunk); color: var(--ink); }
+
+  main { min-width: 0; }
+
+  /* ---------- Header ---------- */
+  .masthead {
+    padding-block: 48px 36px;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 8px;
+  }
+  .eyebrow {
+    font-size: var(--step--1);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--lantern);
+    font-weight: 600;
+    margin: 0 0 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .eyebrow svg { flex: none; }
+  h1 {
+    font-family: var(--font-display);
+    font-size: clamp(2.1rem, 5vw, var(--step-4));
+    font-weight: 700;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    margin: 0 0 18px;
+    text-wrap: balance;
+  }
+  .lede {
+    font-size: var(--step-1);
+    color: var(--ink-soft);
+    max-width: 62ch;
+    margin: 0 0 24px;
+  }
+  .meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 20px;
+    font-size: var(--step--1);
+    color: var(--muted);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .meta li { display: flex; gap: 6px; align-items: center; }
+  .meta strong { color: var(--ink); font-weight: 600; }
+
+  /* ---------- Sections ---------- */
+  section { padding-block: 44px 8px; }
+  section + section { border-top: 1px solid var(--line); }
+
+  h2 {
+    font-family: var(--font-display);
+    font-size: var(--step-3);
+    font-weight: 700;
+    letter-spacing: -0.015em;
+    line-height: 1.15;
+    margin: 0 0 12px;
+    text-wrap: balance;
+  }
+  h3 {
+    font-family: var(--font-display);
+    font-size: var(--step-1);
+    font-weight: 500;
+    margin: 32px 0 10px;
+    text-wrap: balance;
+  }
+  .section-intro { color: var(--ink-soft); max-width: 66ch; margin: 0 0 24px; }
+  p { max-width: 68ch; }
+
+  /* ---------- App pair ---------- */
+  .apps {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  @media (min-width: 720px) { .apps { grid-template-columns: 1fr 1fr; } }
+
+  .app {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 22px 22px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .app__head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .app__name {
+    font-family: var(--font-mono);
+    font-weight: 500;
+    font-size: 1.05rem;
+    margin: 0;
+  }
+  .app--game .app__name { color: var(--game); }
+  .app--public .app__name { color: var(--public); }
+  .app__role { margin: 0; color: var(--ink-soft); }
+  .facts { margin: 0; display: grid; gap: 0; }
+  .facts div {
+    display: grid;
+    grid-template-columns: 7.5rem minmax(0, 1fr);
+    gap: 12px;
+    padding-block: 8px;
+    border-top: 1px solid var(--line);
+    font-size: 0.9375rem;
+  }
+  .facts dt { color: var(--muted); }
+  .facts dd { margin: 0; }
+
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    padding: 2px 9px;
+    border-radius: 999px;
+    white-space: nowrap;
+    line-height: 1.6;
+  }
+  .tag--game { background: var(--game-soft); color: var(--game); }
+  .tag--public { background: var(--public-soft); color: var(--public); }
+  .tag--both { background: var(--surface-sunk); color: var(--ink-soft); }
+  .tag--ok { background: var(--ok-soft); color: var(--ok); }
+  .tag--warn { background: var(--warn-soft); color: var(--warn); }
+  .tag--block { background: var(--block-soft); color: var(--block); }
+
+  /* ---------- Diagram ---------- */
+  .figure {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 20px;
+    overflow-x: auto;
+    margin: 0;
+  }
+  .figure pre.mermaid { margin: 0; background: transparent; text-align: center; min-width: 560px; }
+  .figure figcaption { font-size: var(--step--1); color: var(--muted); margin-top: 12px; }
+
+  /* ---------- Tables ---------- */
+  .table-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--surface);
+  }
+  table { width: 100%; border-collapse: collapse; font-size: 0.9375rem; }
+  th, td { text-align: left; vertical-align: top; padding: 11px 14px; border-bottom: 1px solid var(--line); }
+  tbody tr:last-child th, tbody tr:last-child td { border-bottom: 0; }
+  thead th {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--muted);
+    font-weight: 600;
+    background: var(--surface-sunk);
+    white-space: nowrap;
+  }
+  tbody th { font-weight: 600; white-space: nowrap; }
+  .adr-num { font-family: var(--font-mono); font-weight: 500; color: var(--lantern); }
+  .adr-title { display: block; font-weight: 600; color: var(--ink); }
+  td .muted { color: var(--muted); }
+  .num { font-variant-numeric: tabular-nums; }
+
+  /* ---------- Filter ---------- */
+  .filter {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0 0 14px;
+    padding: 0;
+    border: 0;
+  }
+  .filter legend { font-size: var(--step--1); color: var(--muted); margin-bottom: 8px; width: 100%; }
+  .filter label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    border: 1px solid var(--line-strong);
+    border-radius: 999px;
+    font-size: 0.875rem;
+    cursor: pointer;
+    background: var(--surface);
+    color: var(--ink-soft);
+  }
+  .filter input { position: absolute; opacity: 0; pointer-events: none; }
+  .filter label:has(input:checked) { background: var(--ink); color: var(--ground); border-color: var(--ink); }
+  .filter label:has(input:focus-visible) { outline: 2px solid var(--lantern); outline-offset: 2px; }
+
+  /* ---------- Trees ---------- */
+  .trees { display: grid; grid-template-columns: 1fr; gap: 16px; }
+  @media (min-width: 900px) { .trees { grid-template-columns: 1fr 1fr; } }
+  .tree {
+    background: var(--code-bg);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    overflow: hidden;
+    min-width: 0;
+  }
+  .tree__head {
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    background: var(--surface);
+  }
+  .tree__head strong { font-family: var(--font-mono); font-weight: 500; }
+  .tree pre {
+    margin: 0;
+    padding: 16px;
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    line-height: 1.7;
+    overflow-x: auto;
+    color: var(--ink);
+  }
+  .tree .c { color: var(--muted); }
+  .tree .k { color: var(--lantern); }
+
+  /* ---------- Rules / callouts ---------- */
+  .rules { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
+  .rules li {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 12px;
+    align-items: start;
+  }
+  .rules svg { margin-top: 3px; color: var(--lantern); }
+  .rules p { margin: 0; }
+  .rules strong { display: block; margin-bottom: 2px; }
+
+  .shared-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  @media (min-width: 720px) { .shared-grid { grid-template-columns: 1fr 1fr; } }
+  .shared-item {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 16px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .shared-item__top { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .shared-item p { margin: 0; color: var(--ink-soft); font-size: 0.9375rem; }
+
+  /* ---------- Steps ---------- */
+  .steps { counter-reset: step; list-style: none; margin: 0; padding: 0; display: grid; gap: 0; }
+  .steps li {
+    counter-increment: step;
+    display: grid;
+    grid-template-columns: 2.25rem minmax(0, 1fr);
+    gap: 14px;
+    padding-block: 14px;
+    border-top: 1px solid var(--line);
+  }
+  .steps li:first-child { border-top: 0; }
+  .steps li::before {
+    content: counter(step);
+    font-family: var(--font-mono);
+    font-weight: 500;
+    width: 2.25rem;
+    height: 2.25rem;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--lantern-soft);
+    color: var(--lantern);
+  }
+  .steps p { margin: 0; }
+  .steps strong { display: block; }
+
+  /* ---------- Pipeline ---------- */
+  .pipeline {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 20px;
+    padding: 0;
+    list-style: none;
+  }
+  .pipeline li {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.875rem;
+  }
+  .pipeline li span {
+    padding: 6px 12px;
+    border: 1px solid var(--line-strong);
+    border-radius: 6px;
+    background: var(--surface);
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+  }
+  .pipeline li:not(:last-child)::after {
+    content: "→";
+    color: var(--muted);
+  }
+  .pipeline .only-public { border-style: dashed; }
+
+  /* ---------- Decisions ---------- */
+  .decisions { display: grid; gap: 12px; }
+  .decision {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 16px 18px;
+  }
+  .decision__top { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 6px; }
+  .decision__top h3 { margin: 0; font-size: 1.0625rem; }
+  .decision p { margin: 0; color: var(--ink-soft); }
+  .decision--blocking { border-color: var(--block); box-shadow: 0 0 0 1px var(--block) inset; }
+
+  .absent {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  @media (min-width: 720px) { .absent { grid-template-columns: repeat(3, 1fr); } }
+  .absent div {
+    border: 1px dashed var(--line-strong);
+    border-radius: var(--radius);
+    padding: 16px;
+  }
+  .absent strong { display: block; margin-bottom: 4px; }
+  .absent p { margin: 0; color: var(--ink-soft); font-size: 0.9375rem; }
+
+  .note {
+    border-left: 3px solid var(--warn);
+    background: var(--warn-soft);
+    padding: 12px 16px;
+    border-radius: 0 var(--radius) var(--radius) 0;
+    margin: 20px 0 0;
+    max-width: none;
+  }
+
+  footer.page-foot {
+    margin-top: 56px;
+    padding-top: 20px;
+    border-top: 1px solid var(--line);
+    font-size: var(--step--1);
+    color: var(--muted);
+  }
+</style>
+<style>body{margin:0}[hidden]{display:none!important}</style>
+</head>
+<body>
+
+<div class="shell">
+  <nav class="toc" aria-label="Sommaire">
+    <p class="toc__label">Sommaire</p>
+    <ol>
+      <li><a href="#vue">Vue d'ensemble</a></li>
+      <li><a href="#flux">Flux entre systèmes</a></li>
+      <li><a href="#adr">ADR → code</a></li>
+      <li><a href="#arbo">Arborescence</a></li>
+      <li><a href="#etat">État et autorité serveur</a></li>
+      <li><a href="#rendu">Rendu du site public</a></li>
+      <li><a href="#squads">Features et squads</a></li>
+      <li><a href="#socle">Socle partagé</a></li>
+      <li><a href="#qualite">Qualité et CI</a></li>
+      <li><a href="#feature">Ajouter une feature</a></li>
+      <li><a href="#absent">Hors périmètre</a></li>
+      <li><a href="#ouvert">Décisions ouvertes</a></li>
+    </ol>
+  </nav>
+
+  <main>
+    <header class="masthead">
+      <p class="eyebrow">
+        <svg width="16" height="18" viewBox="0 0 16 18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M5 2h6M8 2v2M4 4h8l1 3v6l-1 3H4l-1-3V7l1-3Z"/><path d="M8 8.2c1.1 1 1.4 2 .9 2.8-.4.6-1.4.6-1.8 0-.5-.8-.2-1.8.9-2.8Z" fill="currentColor"/></svg>
+        Project Lantern · Front
+      </p>
+      <h1>Architecture front de Project Lantern</h1>
+      <p class="lede">
+        Deux applications Nuxt, chacune dans son dépôt, construites pour appliquer les quinze ADR front.
+        C'est un <strong>squelette</strong> : le socle, la structure et les contrôles qualité sont en place,
+        et les features attendent les squads qui en sont propriétaires.
+      </p>
+      <ul class="meta">
+        <li><strong>2</strong> dépôts Git indépendants</li>
+        <li><strong>15</strong> ADR appliqués</li>
+        <li><strong>7 + 4</strong> dossiers de features</li>
+        <li><span class="tag tag--ok">Lint · typecheck · tests · build au vert</span></li>
+      </ul>
+    </header>
+
+    <!-- ============ VUE ============ -->
+    <section id="vue" aria-labelledby="vue-t">
+      <h2 id="vue-t">Vue d'ensemble</h2>
+      <p class="section-intro">
+        Le public et le jeu ont des besoins de rendu, de cache et de mise en production trop différents pour une seule
+        application (ADR-FE-002). Chacune vit donc dans son propre dépôt, avec sa CI, sa doc et sa copie des ADR
+        (ADR-FE-007) : publier l'une ne demande jamais de publier l'autre.
+      </p>
+
+      <div class="apps">
+        <article class="app app--game">
+          <div class="app__head">
+            <h3 class="app__name" style="margin:0">game-client/</h3>
+            <span class="tag tag--game">CSR</span>
+          </div>
+          <p class="app__role">Le jeu authentifié et interactif : héros, run de donjon, combat, butin, progression, coop.</p>
+          <dl class="facts">
+            <div><dt>Rendu</dt><dd><code>ssr: false</code>, entièrement côté navigateur (ADR-FE-004)</dd></div>
+            <div><dt>État</dt><dd>Pinia pour la session et l'UI, cache de requêtes pour les données serveur (ADR-FE-008)</dd></div>
+            <div><dt>Auth</dt><dd>Token en mémoire uniquement, jamais dans le <code>localStorage</code></dd></div>
+            <div><dt>Features</dt><dd>5 piliers, <code>party</code>, <code>store</code>, <code>_template</code></dd></div>
+            <div><dt>Tests</dt><dd class="num">25 tests unitaires</dd></div>
+          </dl>
+        </article>
+
+        <article class="app app--public">
+          <div class="app__head">
+            <h3 class="app__name" style="margin:0">public-site/</h3>
+            <span class="tag tag--public">SSG + SSR</span>
+          </div>
+          <p class="app__role">La vitrine indexable : accueil, univers, règles, saison en cours, statut des services.</p>
+          <dl class="facts">
+            <div><dt>Rendu</dt><dd>Statique par défaut, SSR uniquement s'il est justifié (ADR-FE-003)</dd></div>
+            <div><dt>État</dt><dd><code>useAsyncData</code> de Nuxt, dédupliqué par clé</dd></div>
+            <div><dt>Auth</dt><dd>Aucune : toutes les routes consommées sont publiques</dd></div>
+            <div><dt>Features</dt><dd><code>universe</code>, <code>rules</code>, <code>season</code>, <code>status</code>, <code>_template</code></dd></div>
+            <div><dt>Tests</dt><dd class="num">18 tests unitaires + budgets Lighthouse</dd></div>
+          </dl>
+        </article>
+      </div>
+    </section>
+
+    <!-- ============ FLUX ============ -->
+    <section id="flux" aria-labelledby="flux-t">
+      <h2 id="flux-t">Flux entre systèmes</h2>
+      <p class="section-intro">
+        Aucun des deux fronts ne détient de données métier. Toute lecture et toute écriture passent par l'API Gateway,
+        via des clients HTTP typés écrits à la main (ADR-FE-011). Les erreurs et les Web Vitals partent vers le
+        point d'entrée d'observabilité fourni par l'équipe Ops (ADR-FE-013).
+      </p>
+      <figure class="figure">
+<pre class="mermaid">
+flowchart LR
+  V([Visiteur]) --> PS["public-site<br/>Nuxt · SSG + SSR"]
+  J([Joueur connecté]) --> GC["game-client<br/>Nuxt · CSR"]
+  PS -->|"GET /api/v1/public/…"| GW[API Gateway]
+  GC -->|"/api/v1/… · Bearer · X-Correlation-Id"| GW
+  GW --> S1[Player]
+  GW --> S2[Dungeon]
+  GW --> S3[Combat]
+  GW --> S4[Rewards]
+  GW --> S5[Progression]
+  PS -. "erreurs + LCP/INP/CLS" .-> O[(Observabilité Ops)]
+  GC -. "erreurs + LCP/INP/CLS" .-> O
+</pre>
+        <figcaption>Les cinq services métier sont ceux du brief client ; le front ne les connaît que par la Gateway.</figcaption>
+      </figure>
+    </section>
+
+    <!-- ============ ADR ============ -->
+    <section id="adr" aria-labelledby="adr-t">
+      <h2 id="adr-t">Chaque ADR, et où il vit dans le code</h2>
+      <p class="section-intro">Filtrez par application pour voir ce qui s'applique à chacune.</p>
+
+      <fieldset class="filter" id="adr-filter">
+        <legend>Afficher</legend>
+        <label><input type="radio" name="adr-app" id="f-all" value="all" checked> Tous</label>
+        <label><input type="radio" name="adr-app" id="f-game" value="game"> game-client</label>
+        <label><input type="radio" name="adr-app" id="f-public" value="public"> public-site</label>
+      </fieldset>
+
+      <div class="table-wrap">
+        <table id="adr-table">
+          <thead>
+            <tr><th scope="col">ADR</th><th scope="col">Décision</th><th scope="col">Mise en œuvre</th><th scope="col">Portée</th></tr>
+          </thead>
+          <tbody>
+            <tr data-app="both"><th scope="row" class="adr-num">001</th><td><span class="adr-title">TypeScript, Vue, Nuxt</span></td><td>Nuxt 4, TypeScript strict dans les deux dépôts</td><td><span class="tag tag--both">les deux</span></td></tr>
+            <tr data-app="both"><th scope="row" class="adr-num">002</th><td><span class="adr-title">Deux applications Nuxt</span></td><td><code>game-client/</code> et <code>public-site/</code>, déployables séparément</td><td><span class="tag tag--both">les deux</span></td></tr>
+            <tr data-app="public"><th scope="row" class="adr-num">003</th><td><span class="adr-title">Rendu hybride du site public</span></td><td><code>routeRules</code> dans <code>nuxt.config.ts</code>, registre dans <code>docs/rendering-modes.md</code></td><td><span class="tag tag--public">public-site</span></td></tr>
+            <tr data-app="game"><th scope="row" class="adr-num">004</th><td><span class="adr-title">CSR pour le client de jeu</span></td><td><code>ssr: false</code>, token en mémoire, garde <code>middleware/authenticated.ts</code></td><td><span class="tag tag--game">game-client</span></td></tr>
+            <tr data-app="game"><th scope="row" class="adr-num">005</th><td><span class="adr-title">Pas de moteur de jeu</span></td><td>Aucune dépendance Phaser, Pixi, Three ou Unity</td><td><span class="tag tag--game">game-client</span></td></tr>
+            <tr data-app="game"><th scope="row" class="adr-num">006</th><td><span class="adr-title">Rendu DOM Vue</span></td><td>Composants Vue + CSS, pas de Canvas. Tout passage à un hybride demande des mesures et un nouvel ADR</td><td><span class="tag tag--game">game-client</span></td></tr>
+            <tr data-app="both"><th scope="row" class="adr-num">007</th><td><span class="adr-title">Deux dépôts indépendants</span></td><td>Deux <code>git init</code>, CI par dépôt, ADR copiés dans <code>docs/adr/</code></td><td><span class="tag tag--both">les deux</span></td></tr>
+            <tr data-app="game"><th scope="row" class="adr-num">008</th><td><span class="adr-title">État client, cache, autorité serveur</span></td><td><code>shared/composables/useApiResource.ts</code> + stores <code>session</code> et <code>notifications</code></td><td><span class="tag tag--game">game-client</span></td></tr>
+            <tr data-app="both"><th scope="row" class="adr-num">009</th><td><span class="adr-title">Feature-first, un squad par feature</span></td><td><code>features/&lt;nom&gt;/</code> avec un README par feature et <code>_template/</code> comme exemple complet</td><td><span class="tag tag--both">les deux</span></td></tr>
+            <tr data-app="both"><th scope="row" class="adr-num">010</th><td><span class="adr-title">SCSS, tokens, BEM</span></td><td><code>assets/styles/_tokens.scss</code> (palette → rôles), breakpoints injectés par <code>loadPaths</code></td><td><span class="tag tag--both">les deux</span></td></tr>
+            <tr data-app="both"><th scope="row" class="adr-num">011</th><td><span class="adr-title">Clients HTTP manuels</span></td><td><code>shared/utils/gateway.ts</code>, typé, avec correlation-id et détection des résultats incertains</td><td><span class="tag tag--both">les deux</span></td></tr>
+            <tr data-app="both"><th scope="row" class="adr-num">012</th><td><span class="adr-title">Vitest et Cypress</span></td><td>Specs dans <code>&lt;feature&gt;/tests/</code>, harness Cypress + axe dans <code>cypress/e2e/shell.cy.ts</code></td><td><span class="tag tag--both">les deux</span></td></tr>
+            <tr data-app="both"><th scope="row" class="adr-num">013</th><td><span class="adr-title">Erreurs et Web Vitals</span></td><td><code>plugins/telemetry.client.ts</code>, champs en liste blanche, secrets masqués</td><td><span class="tag tag--both">les deux</span></td></tr>
+            <tr data-app="both"><th scope="row" class="adr-num">014</th><td><span class="adr-title">Budgets de performance</span></td><td>LCP ≤ 2,5 s · INP ≤ 200 ms · CLS ≤ 0,1 au p75. <code>lighthouse-budget.json</code> en CI. Mesure « authentification → jeu jouable » instrumentée</td><td><span class="tag tag--both">les deux</span></td></tr>
+            <tr data-app="both"><th scope="row" class="adr-num">015</th><td><span class="adr-title">RGAA et exceptions documentées</span></td><td>Skip link, landmarks, focus verrouillé par un token, live region, lint <code>vuejs-accessibility</code> + axe</td><td><span class="tag tag--both">les deux</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============ ARBO ============ -->
+    <section id="arbo" aria-labelledby="arbo-t">
+      <h2 id="arbo-t">Arborescence</h2>
+      <p class="section-intro">
+        Le code est rangé par capacité utilisateur, pas par couche technique : un squad travaille dans ses dossiers sans
+        toucher ceux des autres (ADR-FE-009). <code>pages/</code> compose les features, il ne les implémente pas.
+      </p>
+
+      <div class="trees">
+        <div class="tree">
+          <div class="tree__head"><strong>game-client/</strong><span class="tag tag--game">CSR</span></div>
+<pre><span class="k">app/</span>
+  features/
+    _template/        <span class="c"># l'exemple complet à copier</span>
+      api/            <span class="c"># seul accès à la Gateway</span>
+      components/
+      composables/
+      tests/
+      exampleRules.ts <span class="c"># règles pures</span>
+      types.ts        <span class="c"># contrat écrit à la main</span>
+      README.md
+    player/  dungeon/  combat/
+    inventory/  progression/
+    party/  store/    <span class="c"># README seul</span>
+  shared/
+    ui/               <span class="c"># Ui*, auto-importés</span>
+    composables/      <span class="c"># useGateway, useApiResource</span>
+    stores/           <span class="c"># session, notifications</span>
+    utils/            <span class="c"># gateway, telemetry, gameTiming</span>
+    tests/
+  pages/index.vue     <span class="c"># placeholder</span>
+  layouts/  middleware/  plugins/
+  assets/styles/      <span class="c"># tokens, reset, base</span>
+<span class="k">server/</span>routes/healthz.ts
+<span class="k">cypress/</span>e2e/shell.cy.ts
+<span class="k">docs/</span>adr/  accessibility*  design-tokens
+     open-decisions  performance-budgets
+     product-brief-mapping</pre>
+        </div>
+
+        <div class="tree">
+          <div class="tree__head"><strong>public-site/</strong><span class="tag tag--public">SSG + SSR</span></div>
+<pre><span class="k">app/</span>
+  features/
+    _template/        <span class="c"># version SSR/SSG</span>
+      api/
+      components/
+      composables/    <span class="c"># useAsyncData</span>
+      tests/
+      exampleRules.ts
+      types.ts
+      README.md
+    universe/  rules/
+    season/  status/  <span class="c"># README seul</span>
+  shared/
+    ui/               <span class="c"># UiButton, UiPanel</span>
+    composables/      <span class="c"># useGateway</span>
+    utils/            <span class="c"># gateway, telemetry</span>
+    tests/
+  pages/index.vue     <span class="c"># placeholder, prérendu</span>
+  layouts/  plugins/
+  assets/styles/
+<span class="k">server/</span>routes/healthz.ts
+<span class="k">cypress/</span>e2e/shell.cy.ts
+<span class="k">docs/</span>adr/  accessibility  design-tokens
+     performance-budgets  rendering-modes
+lighthouse-budget.json</pre>
+        </div>
+      </div>
+
+      <h3>Ce qui est vérifié en revue</h3>
+      <ul class="rules">
+        <li>
+          <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m3 8.5 3.2 3L13 4.5"/></svg>
+          <p><strong>Un composant n'appelle jamais la Gateway.</strong> Seul le dossier <code>api/</code> de la feature le fait, via <code>useGateway()</code>.</p>
+        </li>
+        <li>
+          <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m3 8.5 3.2 3L13 4.5"/></svg>
+          <p><strong>Rien ne passe dans <code>shared/</code> avant d'avoir deux vrais consommateurs</strong> et l'accord des squads concernés.</p>
+        </li>
+        <li>
+          <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m3 8.5 3.2 3L13 4.5"/></svg>
+          <p><strong>On ne modifie pas la feature d'un autre squad</strong> sans lui en avoir parlé d'abord.</p>
+        </li>
+        <li>
+          <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m3 8.5 3.2 3L13 4.5"/></svg>
+          <p><strong>Aucune couleur, taille ou police en dur dans un composant.</strong> On utilise un token, et si aucun ne convient, on en ajoute un et on le documente.</p>
+        </li>
+      </ul>
+    </section>
+
+    <!-- ============ ETAT ============ -->
+    <section id="etat" aria-labelledby="etat-t">
+      <h2 id="etat-t">État et autorité serveur</h2>
+      <p class="section-intro">
+        Dans le game-client, deux mécanismes cohabitent et ne se confondent pas (ADR-FE-008).
+        <strong>Pinia</strong> garde ce que le client possède : session, panneau ouvert, file de notifications.
+        <strong><code>useApiResource</code></strong> garde une copie temporaire de ce que le backend possède.
+      </p>
+
+      <div class="table-wrap" style="margin-bottom:20px">
+        <table>
+          <thead><tr><th scope="col">Type d'état</th><th scope="col">Exemple</th><th scope="col">Où il vit</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">UI éphémère</th><td>Modale ouverte, filtre, champ de formulaire</td><td>Local au composant (<code>ref</code>)</td></tr>
+            <tr><th scope="row">Session client</th><td>Token, identité, panneau latéral</td><td>Store Pinia <code>session</code></td></tr>
+            <tr><th scope="row">Retour au joueur</th><td>Récompense obtenue, action refusée</td><td>Store Pinia <code>notifications</code> + live region</td></tr>
+            <tr><th scope="row">Données métier</th><td>Inventaire, progression, run en cours</td><td><code>useApiResource(clé, fetcher, ttl)</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <figure class="figure">
+<pre class="mermaid">
+sequenceDiagram
+  participant C as Composant
+  participant F as Composable de la feature
+  participant K as useApiResource
+  participant G as API Gateway
+  C->>F: action(id)
+  F->>G: POST via api/
+  alt 2xx — succès confirmé
+    G-->>F: résultat
+    F->>K: invalidate(clé)
+    K->>G: GET (relecture)
+    F-->>C: notification « OK »
+  else 5xx, timeout, réseau — résultat incertain
+    F->>K: invalidate + relecture forcée
+    F-->>C: « Résultat non confirmé »
+  else 4xx — refus
+    F-->>C: « Action refusée » + raison
+  end
+</pre>
+        <figcaption>
+          Le client ne corrige jamais son cache lui-même : il invalide puis relit. Un 5xx ne compte pas comme un échec,
+          parce que l'écriture a pu être appliquée côté serveur.
+        </figcaption>
+      </figure>
+
+      <p>
+        Le cache évite les requêtes en double (deux écrans qui lisent la même clé partagent le même appel), affiche la
+        péremption grâce à une horloge commune et au badge <code>UiStaleBadge</code>, et se vide entièrement au logout.
+        Il peut rester au niveau du module parce que le client de jeu est en CSR : il ne traverse jamais de requête serveur.
+      </p>
+    </section>
+
+    <!-- ============ RENDU ============ -->
+    <section id="rendu" aria-labelledby="rendu-t">
+      <h2 id="rendu-t">Rendu du site public</h2>
+      <p class="section-intro">
+        Le rendu statique est la règle. Il est peu coûteux, indexable, lisible avant l'exécution du JavaScript et continue
+        de fonctionner si la Gateway tombe. Le SSR est l'exception : il faut dire ce qui change entre deux requêtes et
+        qu'un build ne peut pas connaître (ADR-FE-003).
+      </p>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th scope="col">Forme</th><th scope="col"><code>routeRules</code></th><th scope="col">Quand l'utiliser</th></tr></thead>
+          <tbody>
+            <tr><th scope="row"><span class="tag tag--public">Statique</span></th><td><code>{ prerender: true }</code></td><td>Par défaut. Contenu qui change à chaque release, pas à chaque requête</td></tr>
+            <tr><th scope="row"><span class="tag tag--warn">SSR + swr</span></th><td><code>{ ssr: true, prerender: false, swr: 60 }</code></td><td>Données assez fraîches à la minute près et qui doivent rester indexables</td></tr>
+            <tr><th scope="row"><span class="tag tag--block">SSR sans cache</span></th><td><code>{ ssr: true, prerender: false, cache: false }</code></td><td>Quand une réponse en cache serait fausse, par exemple le statut des services pendant un incident</td></tr>
+            <tr><th scope="row"><span class="tag tag--both">CSR</span></th><td>—</td><td>Jamais le mode par défaut ici. C'est le mode du game-client</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="note">
+        Une route SSR sans stratégie de cache explicite est refusée en revue. Toute nouvelle route se déclare dans
+        <code>nuxt.config.ts</code> <em>et</em> dans <code>docs/rendering-modes.md</code>. Aujourd'hui, seule
+        <code>/</code> existe, et elle est statique.
+      </p>
+    </section>
+
+    <!-- ============ SQUADS ============ -->
+    <section id="squads" aria-labelledby="squads-t">
+      <h2 id="squads-t">Features et squads</h2>
+      <p class="section-intro">
+        Les cinq piliers du brief client correspondent aux cinq squads, et donc aux cinq dossiers de features. Chaque README
+        désigne <strong>un seul</strong> squad propriétaire et reprend la question d'acceptation du client.
+      </p>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th scope="col">Dossier</th><th scope="col">Squad</th><th scope="col">Question du client</th></tr></thead>
+          <tbody>
+            <tr><th scope="row"><code>player/</code></th><td>Player</td><td>Un nouveau joueur comprend-il quoi faire ensuite ?</td></tr>
+            <tr><th scope="row"><code>dungeon/</code></th><td>Dungeon</td><td>Chaque run ressemble-t-elle à une vraie aventure ?</td></tr>
+            <tr><th scope="row"><code>combat/</code></th><td>Combat</td><td>Le joueur comprend-il pourquoi une action a réussi ou échoué ?</td></tr>
+            <tr><th scope="row"><code>inventory/</code></th><td>Rewards</td><td>La récompense donne-t-elle envie de continuer ?</td></tr>
+            <tr><th scope="row"><code>store/</code></th><td>Rewards <span class="muted">(provisoire)</span></td><td>Boutique transparente, cosmétique, sans pay-to-win</td></tr>
+            <tr><th scope="row"><code>progression/</code></th><td>Progression</td><td>Pourquoi revenir demain ?</td></tr>
+            <tr><th scope="row"><code>party/</code></th><td><span class="tag tag--block">non attribué</span></td><td>Coop 2 à 4 joueurs. Bloqué, voir <a href="#ouvert">décisions ouvertes</a></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============ SOCLE ============ -->
+    <section id="socle" aria-labelledby="socle-t">
+      <h2 id="socle-t">Socle partagé</h2>
+      <p class="section-intro">Ce qui existe déjà et qu'aucun squad n'a à réécrire.</p>
+
+      <div class="shared-grid">
+        <div class="shared-item">
+          <div class="shared-item__top"><code>shared/utils/gateway.ts</code><span class="tag tag--both">les deux</span></div>
+          <p>Le seul transport HTTP. Routes versionnées, <code>X-Correlation-Id</code> sur chaque requête, enveloppe d'erreur <code>GatewayError</code>, 204 géré, <code>isOutcomeUncertain</code>.</p>
+        </div>
+        <div class="shared-item">
+          <div class="shared-item__top"><code>useApiResource.ts</code><span class="tag tag--game">game-client</span></div>
+          <p>Cache de requêtes par clé, avec TTL, jonction des requêtes déjà en cours, invalidation par préfixe et <code>clearApiCache()</code> au logout.</p>
+        </div>
+        <div class="shared-item">
+          <div class="shared-item__top"><code>shared/stores/</code><span class="tag tag--game">game-client</span></div>
+          <p><code>session</code> garde le token en mémoire et lance la mesure de performance. <code>notifications</code> gère la file lue par la live region.</p>
+        </div>
+        <div class="shared-item">
+          <div class="shared-item__top"><code>plugins/telemetry.client.ts</code><span class="tag tag--both">les deux</span></div>
+          <p>LCP, INP, CLS, erreurs <code>window</code>, rejets de promesses et erreurs Vue, envoyés par lots via <code>sendBeacon</code>. Inactif tant qu'aucun endpoint n'est configuré.</p>
+        </div>
+        <div class="shared-item">
+          <div class="shared-item__top"><code>server/routes/healthz.ts</code><span class="tag tag--both">les deux</span></div>
+          <p>Renvoie <code>{ status, app, version, commit, builtAt }</code>, l'identité de build exigée au jalon cycle 1 / semaine 2.</p>
+        </div>
+        <div class="shared-item">
+          <div class="shared-item__top"><code>shared/ui/</code><span class="tag tag--both">les deux</span></div>
+          <p>Primitives en BEM auto-importées : <code>UiButton</code>, <code>UiPanel</code>, plus <code>UiStaleBadge</code> et <code>UiNotificationCenter</code> côté jeu.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ QUALITE ============ -->
+    <section id="qualite" aria-labelledby="qualite-t">
+      <h2 id="qualite-t">Qualité et CI</h2>
+      <p class="section-intro">Chaque dépôt a son propre pipeline, qui tourne sur chaque pull request et sur <code>main</code>.</p>
+
+      <ol class="pipeline" aria-label="Étapes du pipeline">
+        <li><span>npm ci</span></li>
+        <li><span>lint</span></li>
+        <li><span>typecheck</span></li>
+        <li><span>test:unit</span></li>
+        <li><span>build</span></li>
+        <li><span>/healthz</span></li>
+        <li><span>cypress + axe</span></li>
+        <li><span class="only-public">lighthouse</span></li>
+      </ol>
+
+      <div class="table-wrap">
+        <table>
+          <caption class="visually-hidden" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)">Résultat des contrôles locaux</caption>
+          <thead><tr><th scope="col">Contrôle local</th><th scope="col">game-client</th><th scope="col">public-site</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">lint (dont accessibilité)</th><td><span class="tag tag--ok">OK</span></td><td><span class="tag tag--ok">OK</span></td></tr>
+            <tr><th scope="row">typecheck</th><td><span class="tag tag--ok">OK</span></td><td><span class="tag tag--ok">OK</span></td></tr>
+            <tr><th scope="row">tests unitaires</th><td class="num"><span class="tag tag--ok">25 / 25</span></td><td class="num"><span class="tag tag--ok">18 / 18</span></td></tr>
+            <tr><th scope="row">build</th><td><span class="tag tag--ok">OK</span></td><td><span class="tag tag--ok">OK</span></td></tr>
+            <tr><th scope="row">Cypress, Lighthouse</th><td><span class="tag tag--both">en CI seulement</span></td><td><span class="tag tag--both">en CI seulement</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="note">
+        Deux règles de lint sont réglées volontairement, avec la justification écrite dans <code>eslint.config.mjs</code> :
+        <code>role="list"</code> est conservé sur les <code>&lt;ul&gt;</code>, parce que Safari/VoiceOver perd la sémantique de
+        liste quand on retire les puces, et <code>&lt;label for&gt;</code> + <code>id</code> compte comme une association valide.
+      </p>
+    </section>
+
+    <!-- ============ FEATURE ============ -->
+    <section id="feature" aria-labelledby="feature-t">
+      <h2 id="feature-t">Ajouter une feature</h2>
+      <p class="section-intro">La procédure est la même dans les deux dépôts. Le dossier <code>_template/</code> reste exécutable et linté pour ne pas se périmer en silence.</p>
+
+      <ol class="steps">
+        <li><p><strong>Copier le template</strong><code>cp -r app/features/_template app/features/&lt;nom&gt;</code>, puis renommer <code>example</code> partout.</p></li>
+        <li><p><strong>Écrire <code>types.ts</code> à la main</strong>d'après le contrat versionné de la Gateway. Pas de génération OpenAPI (ADR-FE-011).</p></li>
+        <li><p><strong>Mettre chaque appel dans <code>api/</code></strong>C'est le seul fichier de la feature autorisé à joindre la Gateway.</p></li>
+        <li><p><strong>Isoler les règles pures</strong>dans un <code>.ts</code> sans framework, testé par Vitest dans <code>tests/</code> (ADR-FE-012).</p></li>
+        <li><p><strong>Choisir la forme de l'état</strong>Local si l'état est éphémère, <code>useApiResource</code> avec une clé et un TTL si des données joueur sont partagées entre écrans (ADR-FE-008).</p></li>
+        <li><p><strong>Ajouter la route dans <code>pages/</code></strong>et l'entrée de navigation. Côté public-site, déclarer aussi le mode de rendu et le justifier.</p></li>
+        <li><p><strong>Remplir le README</strong>: objectif, routes, APIs consommées, état partagé, <strong style="display:inline">squad propriétaire</strong>, couverture de tests.</p></li>
+        <li><p><strong>Écrire un parcours Cypress</strong>seulement si la feature ajoute un chemin critique. Toutes n'en ont pas besoin.</p></li>
+      </ol>
+    </section>
+
+    <!-- ============ ABSENT ============ -->
+    <section id="absent" aria-labelledby="absent-t">
+      <h2 id="absent-t">Volontairement hors périmètre</h2>
+      <p class="section-intro">Ce squelette s'arrête là où commence le travail des squads.</p>
+      <div class="absent">
+        <div><strong>Écrans</strong><p><code>pages/</code> ne contient qu'un placeholder par application, et la navigation est vide.</p></div>
+        <div><strong>Code de gameplay</strong><p>Les dossiers des piliers ne contiennent que leur README : périmètre, squad, contraintes.</p></div>
+        <div><strong>Parcours E2E</strong><p>Auth, démarrer ou reprendre une session, action de jeu : c'est aux squads qui livrent ces routes de les écrire.</p></div>
+      </div>
+    </section>
+
+    <!-- ============ OUVERT ============ -->
+    <section id="ouvert" aria-labelledby="ouvert-t">
+      <h2 id="ouvert-t">Décisions ouvertes</h2>
+      <p class="section-intro">
+        Le brief client demande des choses qu'aucun ADR actuel ne couvre. Elles sont notées dans
+        <code>docs/open-decisions.md</code> et ne doivent pas être tranchées au détour d'une pull request.
+      </p>
+
+      <div class="decisions">
+        <article class="decision decision--blocking">
+          <div class="decision__top"><span class="tag tag--block">bloquant</span><h3>Transport temps réel pour la coop</h3></div>
+          <p>Polling, Server-Sent Events ou WebSocket. L'ADR-008 prévoit un cache sur requêtes, qui ne convient pas à un lobby où les actions des autres joueurs doivent apparaître sans intervention. <code>party/</code> reste vide tant qu'un ADR n'a pas tranché.</p>
+        </article>
+        <article class="decision">
+          <div class="decision__top"><span class="tag tag--warn">à attribuer</span><h3>Squad propriétaire de <code>party/</code></h3></div>
+          <p>La coop concerne les cinq squads, alors que l'ADR-009 en exige un seul. C'est à l'équipe de gouvernance d'attribuer ce dossier.</p>
+        </article>
+        <article class="decision">
+          <div class="decision__top"><span class="tag tag--warn">à décider</span><h3>Paiement en argent réel dans le store</h3></div>
+          <p>Choix du prestataire de paiement et du flux de redirection. Aucune donnée de carte ne doit arriver dans nos composants.</p>
+        </article>
+        <article class="decision">
+          <div class="decision__top"><span class="tag tag--warn">à décider</span><h3>Langue du produit</h3></div>
+          <p>Anglais pour l'instant (<code>lang="en"</code>), parce que le brief client est rédigé en anglais. Aucun ADR ne fixe ce choix ni l'i18n.</p>
+        </article>
+      </div>
+
+      <p class="note">
+        À corriger à part : les titres H1 des fichiers <code>ADR-FE-014</code> et <code>ADR-FE-015</code> annoncent 015 et 016.
+        Les noms de fichiers sont justes, ce sont les titres qui sont décalés.
+      </p>
+    </section>
+
+    <footer class="page-foot">
+      État relevé sur les deux dépôts après le dernier passage de lint, typecheck, tests unitaires et build. Rien n'est encore commité.
+    </footer>
+  </main>
+</div>
+
+<script>
+  (function () {
+    var rows = Array.prototype.slice.call(document.querySelectorAll('#adr-table tbody tr'));
+    var radios = document.querySelectorAll('input[name="adr-app"]');
+    function apply(value) {
+      rows.forEach(function (row) {
+        var app = row.getAttribute('data-app');
+        row.hidden = !(value === 'all' || app === 'both' || app === value);
+      });
+    }
+    Array.prototype.forEach.call(radios, function (radio) {
+      radio.addEventListener('change', function () {
+        apply(radio.value);
+        try { localStorage.setItem('adr-filter', radio.value); } catch (e) {}
+      });
+    });
+    try {
+      var saved = localStorage.getItem('adr-filter');
+      if (saved) {
+        var el = document.querySelector('input[name="adr-app"][value="' + saved + '"]');
+        if (el) { el.checked = true; apply(saved); }
+      }
+    } catch (e) {}
+  })();
+</script>
+<!-- Diagrams: rendered by Mermaid in any browser (needs an internet connection). -->
+<script type="module">
+  import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.esm.min.mjs";
+  const dark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+  mermaid.initialize({ startOnLoad: false, theme: dark ? "dark" : "default", securityLevel: "strict" });
+  await mermaid.run({ querySelector: "pre.mermaid" });
+</script>
+</body>
+</html>

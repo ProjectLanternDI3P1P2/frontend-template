@@ -1,0 +1,115 @@
+// ADR-FE-010 — Design tokens.
+//
+// Every repeated visual decision is declared here as a CSS custom property.
+// Components MUST consume a token instead of re-introducing a literal value:
+// `color: var(--color-text-muted)` and never `color: #a89d84`.
+//
+// Adding a token is a deliberate act: document it in docs/design-tokens.md and
+// check first that no existing token already expresses the same decision.
+
+:root {
+  // ---- Colour: raw palette (never consumed directly by components) ----
+  --palette-obsidian-900: #0b0b10;
+  --palette-obsidian-800: #12121b;
+  --palette-obsidian-700: #1b1b28;
+  --palette-obsidian-600: #262636;
+  --palette-obsidian-500: #3a3a4f;
+  --palette-parchment-100: #f4efe4;
+  --palette-parchment-300: #d8cfba;
+  --palette-parchment-500: #a89d84;
+  --palette-gold-400: #e0b457;
+  --palette-gold-600: #a97f24;
+  --palette-blood-400: #d1495b;
+  --palette-blood-600: #8f2231;
+  --palette-arcane-400: #7b6cf6;
+  --palette-jade-400: #4fb286;
+
+  // ---- Colour: semantic roles (what components actually use) ----
+  --color-surface-base: var(--palette-obsidian-900);
+  --color-surface-raised: var(--palette-obsidian-800);
+  --color-surface-overlay: var(--palette-obsidian-700);
+  --color-border-subtle: var(--palette-obsidian-600);
+  --color-border-strong: var(--palette-obsidian-500);
+
+  --color-text-primary: var(--palette-parchment-100);
+  --color-text-muted: var(--palette-parchment-500);
+  --color-text-inverse: var(--palette-obsidian-900);
+
+  --color-accent: var(--palette-gold-400);
+  --color-accent-strong: var(--palette-gold-600);
+  --color-danger: var(--palette-blood-400);
+  --color-danger-strong: var(--palette-blood-600);
+  --color-arcane: var(--palette-arcane-400);
+  --color-success: var(--palette-jade-400);
+
+  // The focus ring is a token of its own: ADR-FE-015 forbids removing it.
+  --color-focus-ring: var(--palette-gold-400);
+
+  // ---- Colour: item rarity (shared game vocabulary) ----
+  --color-rarity-common: var(--palette-parchment-300);
+  --color-rarity-magic: #6aa9f0;
+  --color-rarity-rare: var(--palette-gold-400);
+  --color-rarity-legendary: #c96f27;
+  --color-rarity-mythic: var(--palette-arcane-400);
+
+  // ---- Spacing (4px base scale) ----
+  --space-0: 0;
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-8: 4rem;
+
+  // ---- Typography ----
+  --font-family-body: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --font-family-display: 'Iowan Old Style', 'Palatino Linotype', Georgia, serif;
+  --font-family-mono: 'Cascadia Mono', Consolas, 'Courier New', monospace;
+
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-md: 1rem;
+  --font-size-lg: 1.25rem;
+  --font-size-xl: 1.75rem;
+  --font-size-2xl: 2.5rem;
+
+  --font-weight-regular: 400;
+  --font-weight-medium: 600;
+  --font-weight-bold: 700;
+
+  --line-height-tight: 1.2;
+  --line-height-body: 1.6;
+
+  // ---- Radii and elevation ----
+  --radius-sm: 2px;
+  --radius-md: 6px;
+  --radius-lg: 12px;
+  --radius-pill: 999px;
+
+  --shadow-sm: 0 1px 2px rgb(0 0 0 / 40%);
+  --shadow-md: 0 4px 12px rgb(0 0 0 / 45%);
+  --shadow-lg: 0 12px 32px rgb(0 0 0 / 55%);
+
+  // ---- Motion (ADR-FE-006: CSS only, modest animation) ----
+  --duration-instant: 80ms;
+  --duration-fast: 150ms;
+  --duration-slow: 320ms;
+  --easing-standard: cubic-bezier(0.2, 0, 0, 1);
+
+  // ---- Layout ----
+  --layout-max-width: 72rem;
+  --layout-gutter: var(--space-4);
+
+  // Mirror of _breakpoints.scss, kept for documentation and JS-side reads.
+  --breakpoint-sm: 480px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1440px;
+
+  --z-content: 1;
+  --z-sticky: 100;
+  --z-overlay: 200;
+  --z-toast: 300;
+}

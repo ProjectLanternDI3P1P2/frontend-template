@@ -1,0 +1,37 @@
+// ADR-FE-010 — Responsive breakpoints.
+//
+// Breakpoints are the one visual decision that cannot be expressed as a CSS
+// custom property, because media queries cannot read var(). They are therefore
+// SCSS variables, injected into every component by nuxt.config.ts, and mirrored
+// in --breakpoint-* tokens for documentation.
+
+@use 'sass:map';
+
+$sm: 480px;
+$md: 768px;
+$lg: 1024px;
+$xl: 1440px;
+
+$breakpoints: (
+  'sm': $sm,
+  'md': $md,
+  'lg': $lg,
+  'xl': $xl,
+);
+
+/// Apply styles from the named breakpoint upwards.
+@mixin from($name) {
+  @if not map.has-key($breakpoints, $name) {
+    @error "Unknown breakpoint: #{$name}.";
+  }
+  @media (min-width: map.get($breakpoints, $name)) {
+    @content;
+  }
+}
+
+/// Only animate when the user has not asked for reduced motion (ADR-FE-015).
+@mixin motion-safe {
+  @media (prefers-reduced-motion: no-preference) {
+    @content;
+  }
+}
