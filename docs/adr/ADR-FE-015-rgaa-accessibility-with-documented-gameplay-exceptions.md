@@ -1,4 +1,4 @@
-# ADR-FE-016 — RGAA Accessibility with Documented Gameplay Exceptions
+# ADR-FE-015 — RGAA Accessibility with Documented Gameplay Exceptions
 
 **Status:** Accepted
 
