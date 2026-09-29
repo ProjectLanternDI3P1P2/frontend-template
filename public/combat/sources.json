@@ -1,0 +1,205 @@
+{
+  "figmaFile": "2nmypEkdw4fK9NRkJp9eIt",
+  "assets": [
+    {
+      "file": "265-14265-imgTest31Background1.png",
+      "frame": "265:14265",
+      "layerAlias": "imgTest31Background1"
+    },
+    {
+      "file": "265-14265-imgRectangle2.png",
+      "frame": "265:14265",
+      "layerAlias": "imgRectangle2"
+    },
+    {
+      "file": "265-14265-img84CombatUiFightEnnemies.svg",
+      "frame": "265:14265",
+      "layerAlias": "img84CombatUiFightEnnemies"
+    },
+    {
+      "file": "265-14265-imgHero.svg",
+      "frame": "265:14265",
+      "layerAlias": "imgHero"
+    },
+    {
+      "file": "265-14265-imgSkeleton.svg",
+      "frame": "265:14265",
+      "layerAlias": "imgSkeleton"
+    },
+    {
+      "file": "265-14265-imgHero1.svg",
+      "frame": "265:14265",
+      "layerAlias": "imgHero1"
+    },
+    {
+      "file": "265-14265-imgHero2.svg",
+      "frame": "265:14265",
+      "layerAlias": "imgHero2"
+    },
+    {
+      "file": "265-14265-imgSlime.svg",
+      "frame": "265:14265",
+      "layerAlias": "imgSlime"
+    },
+    {
+      "file": "265-14265-imgBat.svg",
+      "frame": "265:14265",
+      "layerAlias": "imgBat"
+    },
+    {
+      "file": "300-20650-imgTest2Background1.png",
+      "frame": "300:20650",
+      "layerAlias": "imgTest2Background1"
+    },
+    {
+      "file": "300-20650-img84CombatUiFightBoss.svg",
+      "frame": "300:20650",
+      "layerAlias": "img84CombatUiFightBoss"
+    },
+    {
+      "file": "300-20650-imgHero.svg",
+      "frame": "300:20650",
+      "layerAlias": "imgHero"
+    },
+    {
+      "file": "300-20650-imgSkeleton.svg",
+      "frame": "300:20650",
+      "layerAlias": "imgSkeleton"
+    },
+    {
+      "file": "300-20650-imgHero1.svg",
+      "frame": "300:20650",
+      "layerAlias": "imgHero1"
+    },
+    {
+      "file": "300-20650-imgHero2.svg",
+      "frame": "300:20650",
+      "layerAlias": "imgHero2"
+    },
+    {
+      "file": "300-20650-imgSlime.svg",
+      "frame": "300:20650",
+      "layerAlias": "imgSlime"
+    },
+    {
+      "file": "300-20650-imgBat.svg",
+      "frame": "300:20650",
+      "layerAlias": "imgBat"
+    },
+    {
+      "file": "271-15607-imgHero.svg",
+      "frame": "271:15607",
+      "layerAlias": "imgHero"
+    },
+    {
+      "file": "271-15607-imgHero1.svg",
+      "frame": "271:15607",
+      "layerAlias": "imgHero1"
+    },
+    {
+      "file": "271-15607-imgLockDot.svg",
+      "frame": "271:15607",
+      "layerAlias": "imgLockDot"
+    },
+    {
+      "file": "271-15607-imgHero2.svg",
+      "frame": "271:15607",
+      "layerAlias": "imgHero2"
+    },
+    {
+      "file": "271-15607-imgHero3.svg",
+      "frame": "271:15607",
+      "layerAlias": "imgHero3"
+    },
+    {
+      "file": "271-15607-imgPillGlyph.svg",
+      "frame": "271:15607",
+      "layerAlias": "imgPillGlyph"
+    },
+    {
+      "file": "271-15607-imgHero4.svg",
+      "frame": "271:15607",
+      "layerAlias": "imgHero4"
+    },
+    {
+      "file": "271-15607-imgHero5.svg",
+      "frame": "271:15607",
+      "layerAlias": "imgHero5"
+    },
+    {
+      "file": "271-15607-imgHero6.svg",
+      "frame": "271:15607",
+      "layerAlias": "imgHero6"
+    },
+    {
+      "file": "271-15607-imgHero7.svg",
+      "frame": "271:15607",
+      "layerAlias": "imgHero7"
+    },
+    {
+      "file": "271-15607-imgSkeleton.svg",
+      "frame": "271:15607",
+      "layerAlias": "imgSkeleton"
+    },
+    {
+      "file": "271-15607-imgPillGlyph1.svg",
+      "frame": "271:15607",
+      "layerAlias": "imgPillGlyph1"
+    },
+    {
+      "file": "271-15607-imgSlime.svg",
+      "frame": "271:15607",
+      "layerAlias": "imgSlime"
+    },
+    {
+      "file": "271-15607-imgBat.svg",
+      "frame": "271:15607",
+      "layerAlias": "imgBat"
+    },
+    {
+      "file": "271-17398-imgRingTrack.svg",
+      "frame": "271:17398",
+      "layerAlias": "imgRingTrack"
+    },
+    {
+      "file": "271-17398-imgRingProgress.svg",
+      "frame": "271:17398",
+      "layerAlias": "imgRingProgress"
+    },
+    {
+      "file": "271-17921-imgSwapArrow.svg",
+      "frame": "271:17921",
+      "layerAlias": "imgSwapArrow"
+    },
+    {
+      "file": "271-19260-imgPillGlyph.svg",
+      "frame": "271:19260",
+      "layerAlias": "imgPillGlyph"
+    },
+    {
+      "file": "271-19260-imgPillGlyph1.svg",
+      "frame": "271:19260",
+      "layerAlias": "imgPillGlyph1"
+    },
+    {
+      "file": "271-19260-imgPillGlyph2.svg",
+      "frame": "271:19260",
+      "layerAlias": "imgPillGlyph2"
+    },
+    {
+      "file": "271-19260-imgPillGlyph3.svg",
+      "frame": "271:19260",
+      "layerAlias": "imgPillGlyph3"
+    },
+    {
+      "file": "271-19260-imgPillGlyph4.svg",
+      "frame": "271:19260",
+      "layerAlias": "imgPillGlyph4"
+    },
+    {
+      "file": "271-19260-imgPillGlyph5.svg",
+      "frame": "271:19260",
+      "layerAlias": "imgPillGlyph5"
+    }
+  ]
+}
