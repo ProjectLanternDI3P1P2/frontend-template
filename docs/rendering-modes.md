@@ -51,3 +51,7 @@ makes the caching strategy part of the decision, not an afterthought.
 
 Route ownership includes the rendering mode: the squad that owns the feature
 owns this row (ADR-FE-003, ADR-FE-009).
+
+## Combat prototype
+
+`/combat` is prerendered and marked `noindex`. It contains public, synthetic demo data only. Interactive combat previews hydrate in the browser. This is a reviewable prototype hosted here at the user’s request; authenticated gameplay and authoritative resolution still belong in the separate game client. No game API, authentication, or real player state is simulated as production functionality.

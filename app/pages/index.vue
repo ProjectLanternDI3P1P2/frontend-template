@@ -19,6 +19,7 @@ useHead({ title: "Public site" });
       Architecture skeleton. Routes are added by the squad that owns the
       corresponding feature, with their rendering mode declared and justified.
     </p>
+    <NuxtLink to="/combat">Explore the combat interfaces →</NuxtLink>
   </div>
 </template>
 
