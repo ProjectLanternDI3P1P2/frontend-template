@@ -106,3 +106,7 @@ plugin remain the reference for real user experience (ADR-FE-013, ADR-FE-014).
 
 The public site targets RGAA compliance with **no expected exception**: nothing
 here is a gameplay constraint. See [docs/accessibility.md](docs/accessibility.md).
+
+## Combat interface prototype
+
+An interactive Figma-based combat demonstration is available at `/combat`. It includes the pixel-art encounter/boss scenes, tactical planning and resolution states, Team Ultimate confirmation, and the combo bestiary. This is local fixture data, not connected multiplayer gameplay. See [the combat feature documentation](app/features/combat/README.md) for screen mappings and controls.
