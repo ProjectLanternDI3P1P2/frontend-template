@@ -28,24 +28,34 @@ defineProps<{
   background-color: var(--color-surface-raised);
   border: 1px solid var(--color-border-subtle);
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--ui-panel-shadow, var(--shadow-md));
 
   &__header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: var(--space-4);
-    padding: var(--space-4) var(--space-5);
+    gap: var(--ui-panel-header-gap, var(--space-4));
+    min-height: var(--ui-panel-header-min-height, auto);
+    flex-wrap: var(--ui-panel-header-wrap, nowrap);
+    padding: var(--ui-panel-header-padding, var(--space-4) var(--space-5));
     border-bottom: 1px solid var(--color-border-subtle);
   }
 
   &__title {
     margin: 0;
-    font-size: var(--font-size-lg);
+    font-size: var(--ui-panel-title-size, var(--font-size-lg));
+    font-family: var(--ui-panel-title-font, var(--font-family-display));
+    color: var(--ui-panel-title-color, inherit);
+    text-transform: var(--ui-panel-title-transform, none);
+    letter-spacing: var(--ui-panel-title-spacing, normal);
+  }
+
+  &__actions {
+    text-align: var(--ui-panel-actions-align, start);
   }
 
   &__body {
-    padding: var(--space-5);
+    padding: var(--ui-panel-body-padding, var(--space-5));
   }
 }
 </style>
