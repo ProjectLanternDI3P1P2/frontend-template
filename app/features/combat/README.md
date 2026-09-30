@@ -4,6 +4,12 @@ Figma source: https://www.figma.com/design/2nmypEkdw4fK9NRkJp9eIt/Lantern-Projec
 
 This feature implements the combat design as an interactive **local demonstration**. It is temporarily hosted in the public-site repository at the user's request. It does not authenticate players, call a combat service, award loot, persist progress, or implement authoritative multiplayer combat. Move this feature into the separate game client when the real combat contract is available.
 
+**Owner squad:** Groupe 2 (ADR-FE-009).
+
+**Members:** Dylann, Théo, Eliot, Diego, Kevin and Ethan.
+
+**Consumed APIs:** none. **Shared state:** none; each mounted demonstration owns its state.
+
 ## Routes and design frames
 
 - `/combat`: encounter, frame `265:14265` (84).
@@ -23,12 +29,18 @@ The encounter's Object button opens a local healing-potion demo. Run asks before
 
 ## Structure
 
-- `data.ts`, `types.ts`: typed fixture data and local asset references.
-- `rules.ts`: target validation and presentation-only combo preview.
-- `composables/useCombatDemo.ts`: resettable local state, timers and sample transitions. Replace its adapter with backend-authoritative commands/events for production.
-- `components/`: arena, fighter, tactical composition, native dialog, bestiary.
-- `combat.scss`, `fonts.scss`: Figma foundation overrides scoped to `.combat-root`; reuse existing `UiPanel` and `UiButton`.
-- `public/combat/`: original Figma PNG/SVG files and locally served fonts. Never use a screenshot as interface markup.
+- `components/CombatExperience.vue`: composes the views, connects props/events, handles route previews, navigation and keyboard shortcuts.
+- Presentational components: `CombatHeader`, `CombatBattlefield`, `CombatActionBar`, `CombatReplay`, `CombatResonancePanel`, `CombatPartyPanel`, `CombatPreviewPanel`, `CombatUltimateDialog` and `CombatDemoControls`. They receive typed props and emit commands; they do not mutate combat state.
+- `CombatArena`, `CombatFighter`, `CombatBestiary` and `CombatModal`: arena rendering, target display, local bestiary filtering/pinning and native dialog lifecycle. Bestiary entries are passed in as props.
+- `composables/useCombatDemo.ts`: owns mutable demo state, transitions, timers, inventory and replay commands. Exposes read-only refs to consumers. A potion cannot be consumed at full health or with empty inventory; skipping replay stops its timer. Scenario changes reset combat fixtures but preserve the session's potion stock, as before.
+- `fixtures/combatFixtures.ts`: synthetic fighters, skills, combo discoveries and scenario labels. Only the demo/composition layer and tests import it.
+- `types.ts`, `rules.ts`: typed contracts, pure targeting rules and presentation-only combo preview.
+- `presentation.ts`: local asset paths, rank labels and shared state icons.
+- `styles/_tokens.scss`: theme applied only to `.combat-root`; `styles/_breakpoints.scss`: tactical layout thresholds; `styles/_primitives.scss`: feature-local SCSS mixins shared by the component styles. Each component owns scoped SCSS; there is no global `combat.scss`.
+- `CombatPanel`: adapts the shared `UiPanel` through documented `--ui-panel-*` CSS properties. Combat styles do not depend on `UiPanel`'s internal elements. Existing public-site defaults remain unchanged.
+- `public/combat/`: original Figma PNG/SVG files and locally served fonts.
+
+Data flow: `fixtures → useCombatDemo → CombatExperience → props → panels`; events return through `CombatExperience` to composable commands. UI-only state (dialogs, selected view, bestiary filter) stays local. No API directory or global store is introduced until there is a real consumer/contract.
 
 The seven-action resolution list illustrates the design; only the selected player action/ultimate mutates the local fixture. Other party actions are illustrative, not a complete game engine. Disconnection and secret-discovery screens are selectable snapshots. Bestiary pinning is local to the mounted demo. The design's developer-only JSON configuration panel is omitted from the player-facing bestiary.
 
@@ -36,4 +48,4 @@ On small screens the tactical panels stack, skill cards wrap, and the battlefiel
 
 ## Checks
 
-`npm run test:unit` covers target restrictions, locking, single resolution, swapping, timeout fallback, ultimate accounting and timer cleanup. Browser tests in `cypress/e2e/combat.cy.ts` exercise navigation and core controls.
+`npm run test:unit` covers target restrictions, locking, single resolution, swapping, timeout fallback, ultimate accounting, timer cleanup, potion limits, replay skipping and isolation between demo instances. Browser tests in `cypress/e2e/combat.cy.ts` exercise navigation and core controls.
