@@ -1,6 +1,5 @@
-import type { Combo, Fighter, Skill } from "./types";
-export const asset = (name: string, frame = "271-15607", extension = "svg") =>
-  `/combat/${frame}-${name}.${extension}`;
+import type { Combo, Fighter, Skill } from "../types";
+import { asset } from "../presentation";
 export const initialParty: Fighter[] = [
   {
     id: "p1",
@@ -224,4 +223,15 @@ export const combos: Combo[] = [
     }),
   ),
 ];
-export const rankNames = ["back rank", "mid rank", "front rank"];
+
+export const scenarioOptions = [
+  ["intent", "85 · Enemy intents"],
+  ["planning", "86 · Skill & target"],
+  ["locked", "87 · Locked & waiting"],
+  ["resolution", "88 · Combo triggered"],
+  ["missed", "89 · Combo missed"],
+  ["ultimate", "90 · Team Ultimate"],
+  ["swap", "91 · Swap place"],
+  ["offline", "92 · Disconnected & AI"],
+  ["secret", "93 · Secret discovered"],
+];

@@ -1,0 +1,35 @@
+// Feature-local Figma theme, inherited by combat descendants only.
+@mixin theme {
+  --color-surface-base: #14121a;
+  --color-surface-raised: #1c1924;
+  --color-surface-overlay: #26222f;
+  --color-border-subtle: #383343;
+  --color-border-strong: #4c4659;
+  --color-text-primary: #ede4d3;
+  --color-text-muted: #c9bca3;
+  --color-text-inverse: #14121a;
+  --color-accent: #c9a227;
+  --color-accent-strong: #e8cc7a;
+  --combat-dim: #6b6478;
+  --combat-fire: #c97b22;
+  --combat-water: #5e7a8c;
+  --combat-green: #4e8c5a;
+  --combat-arcane: #8b5fc4;
+  --combat-blue: #3d7bc4;
+  --combat-blood: #a32b3f;
+  --combat-selection: #2e2410;
+  --combat-lane: rgb(38 34 47 / 35%);
+  --combat-gold-wash: rgb(201 162 39 / 14%);
+  --combat-backdrop: rgb(20 18 26 / 85%);
+  --arena-paper: #fff;
+  --arena-ink: #000;
+  --arena-red: #ee0b0b;
+  --arena-yellow: #eecc0b;
+  --arena-grey: #4f4c4c;
+  --arena-health: #e80000;
+  --font-family-display: "Cinzel", Georgia, serif;
+  --font-family-body: "Spectral", Georgia, serif;
+  --font-family-mono: "IBM Plex Mono", monospace;
+  --radius-md: 0;
+  --radius-lg: 0;
+}

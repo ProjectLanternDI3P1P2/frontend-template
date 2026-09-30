@@ -25,3 +25,26 @@ onMounted(() => {
     <slot />
   </dialog>
 </template>
+
+<style scoped lang="scss">
+@use "../styles/breakpoints";
+
+.combat-modal {
+  background: var(--color-surface-raised);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-accent);
+  padding: var(--space-6);
+  width: min(800px, calc(100vw - 32px));
+  max-height: calc(100dvh - 32px);
+  overflow: auto;
+  margin: auto;
+}
+.combat-modal::backdrop {
+  background: var(--combat-backdrop);
+}
+@media (max-width: breakpoints.$mobile) {
+  .combat-modal {
+    padding: var(--space-4);
+  }
+}
+</style>

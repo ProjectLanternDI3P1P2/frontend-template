@@ -37,3 +37,15 @@ export interface Combo {
   secret?: boolean;
   unknown?: boolean;
 }
+
+export interface CombatEvent {
+  actor: string;
+  action: string;
+  effect: string;
+  speed: number;
+}
+export interface ActionPreview {
+  combo: string | undefined;
+  damage: number;
+  resonance: number;
+}

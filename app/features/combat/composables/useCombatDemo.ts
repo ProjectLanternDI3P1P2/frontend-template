@@ -1,7 +1,11 @@
-import { computed, onUnmounted, ref } from "vue";
-import { initialEnemies, initialParty, skills } from "../data";
+import { computed, onUnmounted, readonly, ref } from "vue";
+import {
+  initialEnemies,
+  initialParty,
+  skills,
+} from "../fixtures/combatFixtures";
 import { previewAction, validTarget } from "../rules";
-import type { Phase, SkillId } from "../types";
+import type { Phase, SkillId, CombatEvent } from "../types";
 
 /** Isolated interactive fixture. Never sends requests or persists player rewards. */
 export function useCombatDemo() {
@@ -18,12 +22,12 @@ export function useCombatDemo() {
   const replayIndex = ref(0);
   const replaySpeed = ref(1);
   const notice = ref("");
+  const potions = ref(3);
+  const message = ref("");
   const ultimateOpen = ref(false);
   const ultimateSeconds = ref(3);
   const ultimateAccepted = ref(false);
-  const events = ref<
-    { actor: string; action: string; effect: string; speed: number }[]
-  >([]);
+  const events = ref<CombatEvent[]>([]);
   let timer: ReturnType<typeof setInterval> | undefined;
   let ultimateTimer: ReturnType<typeof setInterval> | undefined;
   const skill = computed(() => skills.find((s) => s.id === skillId.value));
@@ -45,6 +49,65 @@ export function useCombatDemo() {
       ? `${skill.value.name}${target.value ? " → " + target.value.name : " — choose a target"}`
       : "Pick a skill",
   );
+  const resolving = computed(() => phase.value === "resolution");
+  const locked = computed(() =>
+    party.value.map(
+      (_, index) =>
+        phase.value !== "intent" &&
+        (resolving.value ||
+          index === 1 ||
+          index === 3 ||
+          (index === 0 && phase.value === "locked")),
+    ),
+  );
+  const lockedCount = computed(() =>
+    phase.value === "intent"
+      ? 0
+      : phase.value === "locked" || scenario.value === "offline"
+        ? 3
+        : resolving.value
+          ? 4
+          : 2,
+  );
+  const partyStatuses = computed(() =>
+    party.value.map((member, index) => {
+      if (!member.hp) return "KO";
+      if (scenario.value === "offline" && index === 3) return "OFFLINE";
+      if (scenario.value === "offline" && index === 2) return "AI · LOCKED";
+      return phase.value === "intent"
+        ? "READING"
+        : resolving.value
+          ? "DONE"
+          : locked.value[index]
+            ? "LOCKED"
+            : "CHOOSING";
+    }),
+  );
+  const selectableIds = computed(() =>
+    phase.value !== "planning"
+      ? []
+      : [
+          ...party.value.filter((member) =>
+            validTarget(skill.value, member, true),
+          ),
+          ...enemies.value.filter((enemy) =>
+            validTarget(skill.value, enemy, false),
+          ),
+        ].map((fighter) => fighter.id),
+  );
+  function usePotion() {
+    const me = party.value[0]!;
+    if (!potions.value || me.hp === me.maxHp) return false;
+    me.hp = Math.min(me.maxHp, me.hp + 25);
+    potions.value--;
+    message.value = `Potion used · Mage ${me.hp}/${me.maxHp} HP`;
+    return true;
+  }
+  function skipReplay() {
+    if (!resolving.value) return;
+    stop();
+    replayIndex.value = events.value.length;
+  }
   function stop() {
     clearInterval(timer);
     timer = undefined;
@@ -326,28 +389,37 @@ export function useCombatDemo() {
     dismissUltimate();
   });
   return {
-    party,
-    enemies,
-    phase,
-    scenario,
-    skill,
-    skillId,
-    target,
-    targetId,
-    resonance,
-    turn,
-    seconds,
-    running,
-    replayIndex,
-    replaySpeed,
-    notice,
-    events,
-    preview,
-    canLock,
-    actionLabel,
-    ultimateOpen,
-    ultimateSeconds,
-    ultimateAccepted,
+    potions: readonly(potions),
+    message: readonly(message),
+    resolving: readonly(resolving),
+    locked: readonly(locked),
+    lockedCount: readonly(lockedCount),
+    partyStatuses: readonly(partyStatuses),
+    selectableIds: readonly(selectableIds),
+    usePotion,
+    skipReplay,
+    party: readonly(party),
+    enemies: readonly(enemies),
+    phase: readonly(phase),
+    scenario: readonly(scenario),
+    skill: readonly(skill),
+    skillId: readonly(skillId),
+    target: readonly(target),
+    targetId: readonly(targetId),
+    resonance: readonly(resonance),
+    turn: readonly(turn),
+    seconds: readonly(seconds),
+    running: readonly(running),
+    replayIndex: readonly(replayIndex),
+    replaySpeed: readonly(replaySpeed),
+    notice: readonly(notice),
+    events: readonly(events),
+    preview: readonly(preview),
+    canLock: readonly(canLock),
+    actionLabel: readonly(actionLabel),
+    ultimateOpen: readonly(ultimateOpen),
+    ultimateSeconds: readonly(ultimateSeconds),
+    ultimateAccepted: readonly(ultimateAccepted),
     selectSkill,
     selectTarget,
     clear,

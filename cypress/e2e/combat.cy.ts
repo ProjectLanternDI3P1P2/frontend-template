@@ -18,7 +18,7 @@ describe("combat prototype", () => {
     cy.visit("/combat?view=bestiary");
     cy.get(".bestiary__filters").contains("button", "Druid").click();
     cy.get("table").contains("button", "Mudlock").click();
-    cy.get(".bestiary__detail .ui-panel__body > h3").should(
+    cy.get(".bestiary__entry-title").should(
       "have.text",
       "Mudlock",
     );

@@ -1,7 +1,11 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { defineComponent } from "vue";
 import { mount } from "@vue/test-utils";
-import { initialEnemies, initialParty, skills } from "../data";
+import {
+  initialEnemies,
+  initialParty,
+  skills,
+} from "../fixtures/combatFixtures";
 import { previewAction, validTarget } from "../rules";
 import { useCombatDemo } from "../composables/useCombatDemo";
 
@@ -125,5 +129,47 @@ describe("combat demo timers", () => {
     d.toggleTimer();
     cleanups.splice(0).forEach((fn) => fn());
     expect(vi.getTimerCount()).toBe(0);
+  });
+});
+
+describe("combat demo commands", () => {
+  it("caps potion healing and does not consume an item at full health", () => {
+    const d = setup();
+    expect(d.usePotion()).toBe(true);
+    expect(d.party.value[0]!.hp).toBe(70);
+    expect(d.potions.value).toBe(2);
+    expect(d.usePotion()).toBe(false);
+    expect(d.potions.value).toBe(2);
+    expect(d.message.value).toContain("70/70 HP");
+  });
+  it("keeps inventory across previews and cannot consume an empty stock", () => {
+    const d = setup();
+    for (let i = 0; i < 3; i++) {
+      d.loadScenario("planning");
+      expect(d.usePotion()).toBe(true);
+    }
+    d.loadScenario("planning");
+    expect(d.usePotion()).toBe(false);
+    expect(d.party.value[0]!.hp).toBe(58);
+    expect(d.potions.value).toBe(0);
+  });
+  it("skips a playing replay without leaving a timer running", () => {
+    vi.useFakeTimers();
+    const d = setup();
+    d.resolve();
+    d.toggleTimer();
+    d.skipReplay();
+    expect(d.replayIndex.value).toBe(d.events.value.length);
+    expect(d.running.value).toBe(false);
+    expect(vi.getTimerCount()).toBe(0);
+  });
+  it("isolates encounters from each other and from the fixtures", () => {
+    const first = setup();
+    const second = setup();
+    first.usePotion();
+    first.resolve();
+    expect(second.party.value[0]!.hp).toBe(initialParty[0]!.hp);
+    expect(second.enemies.value[0]!.hp).toBe(initialEnemies[0]!.hp);
+    expect(second.potions.value).toBe(3);
   });
 });

@@ -1,10 +1,13 @@
 <script setup lang="ts">
-import { asset, combos } from "../data";
+import CombatPanel from "./CombatPanel.vue";
+import { stateIcon } from "../presentation";
+import type { Combo } from "../types";
+const props = defineProps<{ combos: readonly Combo[] }>();
 const filter = ref("All");
-const selected = ref(combos[3]!);
+const selected = ref(props.combos[3] ?? props.combos[0]!);
 const pinned = ref("");
 const visible = computed(() =>
-  combos.filter(
+  props.combos.filter(
     (c) =>
       filter.value === "All" ||
       (filter.value === "Secret"
@@ -12,21 +15,10 @@ const visible = computed(() =>
         : c.role === filter.value || c.setter.includes(filter.value)),
   ),
 );
-function stateIcon(state: string) {
-  const index = [
-    "Off-balance",
-    "Soaked",
-    "Burning",
-    "Stunned",
-    "Marked",
-    "Blinded",
-  ].indexOf(state);
-  return asset(`imgPillGlyph${index > 0 ? index : ""}`, "271-19260");
-}
 </script>
 <template>
   <div class="bestiary combat-grid">
-    <UiPanel title="Known combos" class="combat-panel bestiary__list">
+    <CombatPanel title="Known combos" class="combat-panel bestiary__list">
       <template #actions
         ><span class="mono muted">7 / 12 discovered</span></template
       >
@@ -57,8 +49,8 @@ function stateIcon(state: string) {
               v-for="(combo, i) in visible"
               :key="combo.name + i"
               :class="{
-                'is-selected': selected.name === combo.name,
-                'is-unknown': combo.unknown,
+                'bestiary__row--selected': selected.name === combo.name,
+                'bestiary__row--unknown': combo.unknown,
               }"
             >
               <th scope="row">
@@ -95,18 +87,18 @@ function stateIcon(state: string) {
       <p v-if="!visible.length" class="muted">
         No combos found for this class.
       </p>
-    </UiPanel>
-    <UiPanel :title="selected.name" class="combat-panel bestiary__detail">
-      <h3>{{ selected.name }}</h3>
+    </CombatPanel>
+    <CombatPanel :title="selected.name" class="combat-panel bestiary__detail">
+      <h3 class="bestiary__entry-title">{{ selected.name }}</h3>
       <p class="muted">
         {{ selected.consumer.split(" · ")[0] }} consumes {{ selected.state }}
       </p>
-      <div class="combo-step tone-fire">
+      <div class="combo-step tone--fire">
         <small>1 · Setter</small>
         <p>{{ selected.setter }} sets {{ selected.state }}</p>
       </div>
       <p class="mono muted bestiary__arrow">↓ must act first (higher SPD)</p>
-      <div class="combo-step tone-green">
+      <div class="combo-step tone--green">
         <small>2 · Consumer</small>
         <p>{{ selected.consumer }} consumes {{ selected.state }}</p>
       </div>
@@ -140,6 +132,123 @@ function stateIcon(state: string) {
       <p class="visually-hidden" role="status">
         {{ pinned ? `${pinned} pinned in this demonstration` : "" }}
       </p>
-    </UiPanel>
+    </CombatPanel>
   </div>
 </template>
+
+<style scoped lang="scss">
+@use "../styles/breakpoints";
+@use "../styles/primitives";
+@include primitives.text;
+@include primitives.buttons;
+@include primitives.tones;
+@include primitives.pill;
+@include primitives.grid;
+@include primitives.facts;
+@include primitives.steps;
+.bestiary {
+  min-height: 999px;
+}
+.bestiary__filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-bottom: var(--space-5);
+}
+.bestiary__filters .ui-button {
+  min-height: 32px;
+  padding-inline: var(--space-4);
+}
+.bestiary__scroll {
+  overflow-x: auto;
+}
+.bestiary table {
+  width: 100%;
+  border-spacing: 0 8px;
+  min-width: 900px;
+}
+.bestiary thead th {
+  font-size: 11px;
+  text-transform: uppercase;
+  text-align: left;
+  font-weight: 400;
+  padding: var(--space-2);
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+.bestiary tbody td {
+  background: var(--color-surface-overlay);
+  padding: var(--space-4) var(--space-2);
+  border-block: 1px solid var(--color-border-subtle);
+  font: 10px var(--font-family-mono);
+  text-align: left;
+}
+.bestiary tbody th {
+  background: var(--color-surface-overlay);
+  padding: var(--space-4) var(--space-2);
+  border-block: 1px solid var(--color-border-subtle);
+  font: 10px var(--font-family-mono);
+  text-align: left;
+}
+.bestiary tbody th {
+  width: 19%;
+  border-left: 1px solid var(--color-border-subtle);
+}
+.bestiary tbody td:last-child {
+  border-right: 1px solid var(--color-border-subtle);
+}
+.bestiary tbody button {
+  display: flex;
+  align-items: center;
+  gap: var(--space-5);
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  font: 600 16px var(--font-family-body);
+  width: 100%;
+  text-align: left;
+}
+.bestiary .bestiary__row--selected > * {
+  background: var(--combat-selection);
+  border-color: var(--color-accent);
+}
+.bestiary .bestiary__row--unknown {
+  opacity: 0.45;
+}
+.bestiary .bestiary__row--unknown button {
+  cursor: default;
+}
+.bestiary__detail h3 {
+  color: var(--color-accent-strong);
+  font-size: 38px;
+  margin-bottom: var(--space-2);
+}
+.bestiary__arrow {
+  text-align: center;
+}
+.bestiary__detail .combo-step {
+  margin-block: var(--space-3);
+}
+.bestiary__pin {
+  width: 100%;
+  margin-top: var(--space-7);
+}
+@media (max-width: breakpoints.$stacked) {
+  .bestiary__detail {
+    grid-column: 1;
+  }
+}
+.bestiary__list,
+.bestiary__detail {
+  --ui-panel-body-padding: var(--space-5);
+}
+.bestiary tbody td {
+  padding-block: 13px;
+}
+.bestiary tbody th {
+  padding-block: 13px;
+}
+.bestiary__scroll {
+  max-width: 100%;
+}
+</style>
