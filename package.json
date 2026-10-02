@@ -44,7 +44,7 @@
     "prettier": "3.5.3",
     "sass-embedded": "^1.83.0",
     "typescript": "^5.7.0",
-    "vitest": "^3.0.0",
+    "vitest": "^5.0.2",
     "vue-tsc": "^3.0.0"
   },
   "allowScripts": {
