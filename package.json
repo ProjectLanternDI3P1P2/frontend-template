@@ -24,7 +24,7 @@
   },
   "dependencies": {
     "nuxt": "^4.0.0",
-    "oxlint-tsgolint": "^7.0.2002",
+    "oxlint-tsgolint": "^7.0.2003",
     "vue": "^3.5.0",
     "vue-router": "^5.3.1",
     "web-vitals": "^5.0.0"
@@ -41,7 +41,7 @@
     "eslint": "^9.0.0",
     "eslint-plugin-vuejs-accessibility": "^2.4.1",
     "happy-dom": "^20.0.0",
-    "prettier": "3.5.3",
+    "prettier": "3.9.9",
     "sass-embedded": "^1.83.0",
     "typescript": "^5.7.0",
     "vitest": "^3.0.0",
