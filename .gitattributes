@@ -1,0 +1,2 @@
+# Git hooks run through sh, which chokes on CRLF.
+.husky/* text eol=lf
