@@ -23,8 +23,8 @@
     "test": "npm run test:unit && npm run test:e2e"
   },
   "dependencies": {
-    "nuxt": "^4.0.0",
-    "oxlint-tsgolint": "^7.0.2002",
+    "nuxt": "^4.6.2",
+    "oxlint-tsgolint": "^7.0.2004",
     "vue": "^3.5.0",
     "vue-router": "^5.3.1",
     "web-vitals": "^5.0.0"
@@ -35,17 +35,17 @@
     "@types/mocha": "^10.0.10",
     "@vitejs/plugin-vue": "^6.0.0",
     "@vue/test-utils": "^2.4.6",
-    "axe-core": "^4.10.0",
+    "axe-core": "^4.14.0",
     "cypress": "^15.0.0",
     "cypress-axe": "^1.6.0",
     "eslint": "^9.0.0",
-    "eslint-plugin-vuejs-accessibility": "^2.4.1",
+    "eslint-plugin-vuejs-accessibility": "^2.6.2",
     "happy-dom": "^20.0.0",
-    "prettier": "3.5.3",
-    "sass-embedded": "^1.83.0",
+    "prettier": "3.9.10",
+    "sass-embedded": "^1.105.2",
     "typescript": "^5.7.0",
     "vitest": "^3.0.0",
-    "vue-tsc": "^3.0.0"
+    "vue-tsc": "^3.3.13"
   },
   "allowScripts": {
     "cypress@15.21.1": true,
